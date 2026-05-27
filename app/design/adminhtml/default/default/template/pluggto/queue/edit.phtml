@@ -1,0 +1,89 @@
+<?php
+
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * Todos direitos reservados para Thirdlevel | ThirdLevel All Rights Reserved
+ *
+ * @company   	ThirdLevel
+ * @package    	MercadoLivre
+ * @author      André Fuhrman (andrefuhrman@gmail.com)
+ * @copyright  	Copyright (c) ThirdLevel [http://www.thirdlevel.com.br]
+ *
+ */
+$data = $this->getData();
+?>
+
+<div class="content-header">
+    <h3 class="icon-head head-item">Ver notificação</h3>
+    <p class="form-buttons">
+        <button id="back" title="Back" type="button" class="scalable back" onclick="setLocation('<?php echo $this->getBackUrl(); ?>')" style="">
+            <span>Back</span>
+        </button>
+    </p>
+</div>
+
+<div class="entry-edit">
+    <fieldset id="grop_fields">
+        <table class="form-list" cellspacing="0">
+            <tr>
+                <td class="label">
+                    <label for="mercadolivre_question_id"><b><?php echo Mage::helper('pluggto')->__('Data'); ?></b></label>
+                </td>
+                <td class="value">
+                    <?php echo $data['created']; ?>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">
+                    <label for="mercadolivre_question_id"><b><?php echo Mage::helper('pluggto')->__('Resource'); ?></b></label>
+                </td>
+                <td class="value">
+                    <?php echo $data['what']; ?>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">
+                    <label for="mercadolivre_question_id"><b><?php echo Mage::helper('pluggto')->__('Método'); ?></b></label>
+                </td>
+                <td class="value">
+                    <?php echo $data['opt']; ?>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">
+                    <label for="mercadolivre_question_id"><b><?php echo Mage::helper('pluggto')->__('Url'); ?></b></label>
+                </td>
+                <td class="value">
+                    <?php echo $data['url']; ?>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">
+                    <label for="mercadolivre_question_id"><b><?php echo Mage::helper('pluggto')->__('Body'); ?></b></label>
+                </td>
+                <td class="value">
+                    <textarea><?php echo $data['body']; ?></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">
+                    <label for="mercadolivre_question_id"><b><?php echo Mage::helper('pluggto')->__('Código'); ?></b></label>
+                </td>
+                <td class="value">
+                    <?php echo $data['code']; ?>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">
+                    <label for="mercadolivre_question_id"><b><?php echo Mage::helper('pluggto')->__('Resposta'); ?></b></label>
+                </td>
+                <td class="value">
+                    <textarea><?php echo $data['result']; ?></textarea>
+                </td>
+            </tr>
+        </table>
+        <br /><br />
+    </fieldset>
+</div>

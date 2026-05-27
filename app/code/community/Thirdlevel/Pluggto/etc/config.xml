@@ -1,0 +1,367 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Thirdlevel_Pluggto>
+            <version>4.0.6</version>
+        </Thirdlevel_Pluggto>
+    </modules>
+    <global>
+        <fieldsets>
+            <sales_convert_order>
+                <plugg_id>
+                    <to_order>*</to_order>
+                </plugg_id>
+            </sales_convert_order>
+        </fieldsets>
+        <blocks>
+            <adminhtml>
+                <rewrite>
+                    <sales_order_grid>Thirdlevel_Pluggto_Block_Order_Grid</sales_order_grid>
+                </rewrite>
+            </adminhtml>
+            <pluggto>
+                <class>Thirdlevel_Pluggto_Block</class>
+            </pluggto>
+        </blocks>
+        <helpers>
+            <pluggto>
+                <class>Thirdlevel_Pluggto_Helper</class>
+            </pluggto>
+        </helpers>
+        <models>
+            <sales>
+                <rewrite>
+                    <order>Thirdlevel_Pluggto_Model_Rewrite_Order</order>
+                </rewrite>
+            </sales>
+            <pluggto>
+                <class>Thirdlevel_Pluggto_Model</class>
+                <resourceModel>pluggto_mysql4</resourceModel>
+            </pluggto>
+            <pluggto_mysql4>
+                <class>Thirdlevel_Pluggto_Model_Mysql4</class>
+                <entities>
+                    <api>
+                        <table>thirdlevel_pluggto_api</table>
+                    </api>
+                    <line>
+                        <table>thirdlevel_pluggto_line</table>
+                    </line>
+                    <bulkexport>
+                        <table>thirdlevel_pluggto_bulkexport</table>
+                    </bulkexport>
+                    <attributeSet>
+                        <table>thirdlevel_pluggto_attribute_sets</table>
+                    </attributeSet>
+                </entities>
+            </pluggto_mysql4>
+        </models>
+        <resources>
+            <pluggto_setup>
+                <setup>
+                    <module>Thirdlevel_Pluggto</module>
+                    <class>Thirdlevel_Pluggto_Model_Mysql4_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </pluggto_setup>
+        </resources>
+        <events>
+            <!-- Evento para salvar de atribute set -->
+            <catalog_category_prepare_save>
+                <observers>
+                    <category_save>
+                        <type>singleton</type>
+                        <class>pluggto/observer</class>
+                        <method>saveCategorySet</method>
+                    </category_save>
+                </observers>
+            </catalog_category_prepare_save>
+
+            <!-- Evento para de/para de atribute set -->
+            <adminhtml_catalog_category_tabs>
+                <observers>
+                    <category_update>
+                        <type>singleton</type>
+                        <class>pluggto/observer</class>
+                        <method>pluggtoCategoryTab</method>
+                    </category_update>
+                </observers>
+            </adminhtml_catalog_category_tabs>
+
+            <!-- EVENTO PARA ENVIAR CÓDIGO DE RASTREIO -->
+            <sales_order_shipment_track_save_after>                <!-- identifier of the event we want to catch -->
+                <observers>
+                    <sales_order_shipment_track_save_after_handler>                        <!-- identifier of the event handler -->
+                        <type>model</type>                        <!-- class method call type; valid are model, object and singleton -->
+                        <class>pluggto/observer</class>                        <!-- observers class alias -->
+                        <method>shippingtrack</method>                        <!-- observer's method to be called -->
+                        <args></args>                        <!-- additional arguments passed to observer -->
+                    </sales_order_shipment_track_save_after_handler>
+                </observers>
+            </sales_order_shipment_track_save_after>
+
+            <!-- EVENTO PARA ENVIAR CANCELAMENTO DE PEDIDO -->
+            <sales_order_item_cancel>                <!-- identifier of the event we want to catch -->
+                <observers>
+                    <sales_order_item_cancel_handler>                        <!-- identifier of the event handler -->
+                        <type>model</type>                        <!-- class method call type; valid are model, object and singleton -->
+                        <class>pluggto/observer</class>                        <!-- observers class alias -->
+                        <method>cancelorder</method>                        <!-- observer's method to be called -->
+                        <args></args>                        <!-- additional arguments passed to observer -->
+                    </sales_order_item_cancel_handler>
+                </observers>
+            </sales_order_item_cancel>
+
+            <!-- EVENTO PARA ENVIAR ALTERACAO DE PEDIDO -->
+            <sales_order_save_after>
+                <observers>
+                    <sales_order_save_before_handler>                        <!-- identifier of the event handler -->
+                        <type>model</type>                        <!-- class method call type; valid are model, object and singleton -->
+                        <class>pluggto/observer</class>                        <!-- observers class alias -->
+                        <method>saveorder</method>                        <!-- observer's method to be called -->
+                        <args></args>                        <!-- additional arguments passed to observer -->
+                    </sales_order_save_before_handler>
+                </observers>
+            </sales_order_save_after>
+
+            <!-- EVENTO PARA ENVIAR ALTERACAO CRIAR PEDIDOS DA LOJA NO PLUGGTO, E ALTERACAO DE ESTOQUE (ok) -->
+            <sales_order_place_after>
+                <observers>
+                    <sales_order_place_after_handler>
+                        <type>model</type>
+                        <class>pluggto/observer</class>
+                        <method>placeOrder</method>
+                    </sales_order_place_after_handler>
+                </observers>
+            </sales_order_place_after>
+
+            <!-- EVENTO PARA ENVIAR ALTERACAO DE PRODUTO (ok)-->
+            <catalog_product_delete_after>
+                <observers>
+                    <catalog_product_delete_after_handler>                        <!-- identifier of the event handler -->
+                        <type>model</type>                        <!-- class method call type; valid are model, object and singleton -->
+                        <class>pluggto/observer</class>                        <!-- observers class alias -->
+                        <method>productDelete</method>                        <!-- observer's method to be called -->
+                        <args></args>                        <!-- additional arguments passed to observer -->
+                    </catalog_product_delete_after_handler>
+                </observers>
+            </catalog_product_delete_after>
+
+            <!-- EVENTO PARA ENVIAR ALTERACAO DE PRODUTO QUANDO REALIZADO EM MASSA (ok)-->
+            <!-- IMPORTAMTE::: SO FUNCIONA MAGENTO 1.6 para frente (ok)-->
+            <catalog_product_attribute_update_after>
+                <observers>
+                    <catalog_product_attribute_update_before_handler>                        <!-- identifier of the event handler -->
+                        <type>model</type>                        <!-- class method call type; valid are model, object and singleton -->
+                        <class>pluggto/observer</class>                        <!-- observers class alias -->
+                        <method>afterSaveAttribute</method>                        <!-- observer's method to be called -->
+                        <args></args>                        <!-- additional arguments passed to observer -->
+                    </catalog_product_attribute_update_before_handler>
+                </observers>
+            </catalog_product_attribute_update_after>
+
+            <!-- Ao alterar estoque -->
+            <cataloginventory_stock_item_save_commit_after>
+                <observers>
+                    <cataloginventory_stock_item_save_commit_after_handler>
+                        <class>pluggto/observer</class>
+                        <method>stockChange</method>
+                    </cataloginventory_stock_item_save_commit_after_handler>
+                </observers>
+            </cataloginventory_stock_item_save_commit_after>
+
+            <!-- SINCRONIZAÇÃO MANUAL DE ESTOQUE (ok)  -->
+            <!--
+            <cataloginventory_stock_item_save_after>
+                <observers>
+                    <cataloginventory_stock_item_save_after_handler>
+                        <type>model</type>
+                        <class>pluggto/observer</class>
+                        <method>stockChange</method>
+                    </cataloginventory_stock_item_save_after_handler>
+                </observers>
+            </cataloginventory_stock_item_save_after>
+            -->
+
+            <!-- depois de de salvar o produto (ok) -->
+            <!-- usado para enviar informações de alteração para o Plugg.To (ok)-->
+            <catalog_product_save_after>
+                <observers>
+                    <catalog_product_save_after_handler>                        <!-- identifier of the event handler -->
+                        <type>model</type>                        <!-- class method call type; valid are model, object and singleton -->
+                        <class>pluggto/observer</class>                        <!-- observers class alias -->
+                        <method>aftersaveproduct</method>                        <!-- observer's method to be called -->
+                        <args></args>                        <!-- additional arguments passed to observer -->
+                    </catalog_product_save_after_handler>
+                </observers>
+            </catalog_product_save_after>
+            <admin_session_user_login_success>
+                <observers>
+                    <login>
+                        <type>singleton</type>
+                        <class>pluggto/line</class>
+                        <method>checkCron</method>
+                    </login>
+                </observers>
+            </admin_session_user_login_success>
+        </events>
+    </global>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <pluggto after="Mage_Adminhtml">Thirdlevel_Pluggto_Adminhtml</pluggto>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+    <frontend>
+        <routers>
+            <pluggto>
+                <use>standard</use>
+                <args>
+                    <module>Thirdlevel_Pluggto</module>
+                    <frontName>pluggto</frontName>
+                </args>
+            </pluggto>
+        </routers>
+    </frontend>
+    <adminhtml>
+        <events>
+            <core_block_abstract_prepare_layout_before>
+                <observers>
+                    <pluggto_core_block_abstract_prepare_layout_before>
+                        <class>pluggto/observer</class>
+                        <method>addMassAction</method>
+                    </pluggto_core_block_abstract_prepare_layout_before>
+                </observers>
+            </core_block_abstract_prepare_layout_before>
+        </events>
+        <translate>
+            <modules>
+                <pluggto>
+                    <files>
+                        <default>pluggto.csv</default>
+                    </files>
+                </pluggto>
+            </modules>
+        </translate>
+        <layout>
+            <updates>
+                <pluggto>
+                    <file>pluggto.xml</file>
+                </pluggto>
+            </updates>
+        </layout>
+    </adminhtml>
+    <default>
+        <payment>
+            <pluggto>
+                <active>1</active>
+                <model>Thirdlevel_Pluggto_Model_Payment</model>
+                <active>true</active>
+                <order_status>pending</order_status>
+                <title>PluggTo</title>
+                <allowspecific>0</allowspecific>
+            </pluggto>
+        </payment>
+        <pluggto>
+            <configuration>
+                <base>1</base>
+            </configuration>
+            <products>
+                <active>1</active>
+                <only_qtd>1</only_qtd>
+                <update_price>1</update_price>
+                <update_special_price>1</update_special_price>
+                <update_quantity>1</update_quantity>
+                <update_photos>1</update_photos>
+                <update_title>1</update_title>
+                <update_description>1</update_description>
+                <update_attributes>1</update_attributes>
+                <update_categories>1</update_categories>
+                <send_disable_product>1</send_disable_product>
+            </products>
+            <orders>
+                <active>1</active>
+                <allowcreate>1</allowcreate>
+                <allowsend>0</allowsend>
+            </orders>
+            <categories>
+                <active>1</active>
+            </categories>
+            <customers>
+                <active>1</active>
+            </customers>
+            <configs>
+                <clear_queue>7</clear_queue>
+                <send_disable_imagem>0</send_disable_imagem>
+            </configs>
+            <mageshop>
+                <parallel_fetch>0</parallel_fetch>
+                <sync_skip_disabled>0</sync_skip_disabled>
+                <sync_stock_cron>*/2 * * * *</sync_stock_cron>
+                <cron_playline>*/1 * * * *</cron_playline>
+                <cron_queuecycle>*/1 * * * *</cron_queuecycle>
+                <cron_bulkexport>*/1 * * * *</cron_bulkexport>
+                <cron_orders>*/5 * * * *</cron_orders>
+                <cron_clearqueue>0 1 * * *</cron_clearqueue>
+                <perf_log>0</perf_log>
+                <skip_product_export>0</skip_product_export>
+            </mageshop>
+        </pluggto>
+    </default>
+    <crontab>
+        <jobs>
+            <!-- Todas as expressoes cron sao configuraveis em
+                 Sistema > Config > Plugg.To > Melhorias MageShop (default = valor abaixo). -->
+            <pluggto_observer>
+                <schedule>
+                    <config_path>pluggto/mageshop/cron_playline</config_path>
+                </schedule>
+                <run>
+                    <model>pluggto/line::playline</model>
+                </run>
+            </pluggto_observer>
+            <export_observer>
+                <schedule>
+                    <config_path>pluggto/mageshop/cron_bulkexport</config_path>
+                </schedule>
+                <run>
+                    <model>pluggto/bulkexport::runBulkExport</model>
+                </run>
+            </export_observer>
+            <clear_observer>
+                <schedule>
+                    <config_path>pluggto/mageshop/cron_clearqueue</config_path>
+                </schedule>
+                <run>
+                    <model>pluggto/line::clearQueue</model>
+                </run>
+            </clear_observer>
+
+            <!-- NOVO: substitui pluggto_cron.php (orquestrador) -->
+            <pluggto_cron>
+                <schedule><config_path>pluggto/mageshop/cron_queuecycle</config_path></schedule>
+                <run><model>pluggto/cron::runQueueCycle</model></run>
+            </pluggto_cron>
+
+            <!-- Atualização de pedidos (antigo pluggto_orders_update.php) -->
+            <pluggto_orders_update>
+                <schedule><config_path>pluggto/mageshop/cron_orders</config_path></schedule>
+                <run><model>pluggto/cron::ordersUpdate</model></run>
+            </pluggto_orders_update>
+
+            <!-- Sync de preço/estoque (antigo pluggto_sync_stock_price.php).
+                 Expressao cron configuravel em Melhorias MageShop (default */2). -->
+            <pluggto_sync_stock_price>
+                <schedule><config_path>pluggto/mageshop/sync_stock_cron</config_path></schedule>
+                <run><model>pluggto/cron::syncStockPrice</model></run>
+            </pluggto_sync_stock_price>
+        </jobs>
+    </crontab>
+</config>

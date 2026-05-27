@@ -1,0 +1,31 @@
+<?php 
+$category = $this->getCategory();
+$getAttributeSets = $this->getAttributeSets();
+?>
+
+<div class="entry-edit">
+    <div class="entry-edit-head">
+        <h4 class="icon-head head-edit-form fieldset-legend"><?php echo Mage::helper('pluggto')->__('Attribute Set Mapping to generate products') ?></h4>
+    </div>
+    <fieldset id="grop_fields">
+        <table class="form-list" cellspacing="0">
+            <tr>
+                <td class="label"><label for="group_6custom_use_parent_settings"><?php echo Mage::helper('pluggto')->__('Attribute Set'); ?></label></td>
+                <td class="value">
+                    <select id="group_6custom_use_parent_settings" name="attributeset" class=" select">
+                        <?php foreach ($getAttributeSets as $aset): ?>
+                            <?php if ($aset['value'] == $this->getAttSet()): ?>
+                                <option selected="selected" value="<?php echo $aset['value'] ?>"><?php echo $aset['label'] ?></option>
+                            <?php else: ?>
+                                <option value="<?php echo $aset['value'] ?>"><?php echo $aset['label'] ?></option>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="note">Informação utilizada apenas para gerar produtos do Pluggto na loja</p>
+                </td>
+                <input type="hidden" name="category_id" value="<?php if (isset($category['entity_id'])) echo $category['entity_id']; ?>">
+                <td class="scope-label"><span class="nobr">[GLOBAL]</span></td>
+            </tr>
+        </table>
+    </fieldset>
+</div>

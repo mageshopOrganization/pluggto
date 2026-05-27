@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<config>
+    <menu>
+        <pluggto translate="title" module="pluggto">
+            <title>PluggTo</title>
+            <sort_order>88</sort_order>
+            <children>
+                <configuration translate="title" module="pluggto">
+                    <title>Configuration</title>
+                    <sort_order>1</sort_order>
+                    <action>adminhtml/system_config/edit/section/pluggto</action>
+                </configuration>
+                <queue translate="title" module="pluggto">
+                    <title>Queue</title>
+                    <sort_order>2</sort_order>
+                    <action>adminhtml/pluggto_queue/index</action>
+                </queue>
+                <dash translate="title" module="pluggto">
+                    <title>Painel</title>
+                    <sort_order>3</sort_order>
+                    <action>adminhtml/pluggto_dash/index</action>
+                </dash>
+            </children>
+        </pluggto>
+    </menu>
+    <acl>
+        <resources>
+            <all>
+                <title>Allow Everything</title>
+            </all>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <pluggto translate="title" module="pluggto">
+                                        <title>Pluggto Section</title>
+                                        <sort_order>0</sort_order>
+                                    </pluggto>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                    <pluggto>
+                        <title>Pluggto Menu</title>
+                        <sort_order>72</sort_order>
+                        <children>
+                            <configuration>
+                                <title>Configuration</title>
+                                <sort_order>1</sort_order>
+                            </configuration>
+                            <queue>
+                                <title>Queue</title>
+                                <sort_order>2</sort_order>
+                            </queue>
+                            <dash>
+                                <title>Dash</title>
+                                <sort_order>3</sort_order>
+                            </dash>
+                        </children>
+                    </pluggto>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

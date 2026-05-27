@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Thirdlevel_Pluggto>
+            <active>true</active>
+            <codePool>community</codePool>
+            <version>0.1.0</version>
+            <depends>
+                <Mage_Sales/>
+            </depends>
+        </Thirdlevel_Pluggto>
+    </modules>
+</config>

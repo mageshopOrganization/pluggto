@@ -1,0 +1,1559 @@
+<?xml version="1.0"?>
+<config>
+    <tabs>
+        <thirdlevel translate="label" module="pluggto">
+            <label>Thirdlevel</label>
+        </thirdlevel>
+    </tabs>
+    <sections>
+        <pluggto translate="label" module="pluggto">
+            <label>Pluggto</label>
+            <tab>thirdlevel</tab>
+            <frontend_type>text</frontend_type>
+            <sort_order>0</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <configuration translate="label">
+                    <comment>
+                        <![CDATA[
+                            <div>
+                                <h3>Informações:</h3>
+                                <br><h5>Versão 4.0.5</h5>
+                                <br>
+                                <p>O módulo é fornecido com código aberto, podendo a loja alterar seu código, porém nesse caso o suporte ao mesmo não será mais fornecido pelo Plugg.To</p><br>
+                                <br>
+                                <p><b>Funcionalidades</b></p>
+                                <p>Sincronização de Produtos Simples e Configuráveis (estoque, preço e demais campos), Geração automática de Pedidos no Magento, Envio automático de Entregas para o Plugg.To</p>
+                                <br>
+                                <p><b>Atualizações</b></p>
+                                <p>Recomendamos manter o módulo sempre atualizado, o repositório do mesmo se encontra em <a href="https://bitbucket.org/pluggto/magento/downloads#tag-downloads" target="_blank">bitbucket.com</a></p>
+                                <p>Criando uma conta gratuita no Bitbucket é possível seguir o plugin e ser avisado sempre que uma nova atualização for disponibilizada.</p>
+                                <br>
+                                <p><b>Suporte</b></p>
+                                <p>Caso necessite de suporte envie um email para <a href="mailto:suporte@plugg.to">suporte@plugg.to</a>. Para agilizar o atendimento, recomendamos que o módulo se encontre na última versão e caso seja um problema a ser relatado, por favor descreve-lo passo a passo , com um exemplo  (sku ou id de pedido) onde o problema foi idenficado. Além disso é recomendável o envio das credenciais de acesso a administração da loja e FTP (caso seja o caso).</p>
+                                <br>
+                                <p><b>Nota Fiscal</b></p>
+                                <p>Veja como integrar nota fiscal no link <a href="https://pluggto.atlassian.net/servicedesk/customer/portal/1/article/707985883?src=-517299334" target="_blank">Base de Conhecimento</a></p>
+                                <br>
+                                <br>
+                                <p><b>Configuração de Cron</b></p>
+                                <p>Por padrão, o servidor do PluggTo se encarrega de chamar a loja de minuto em minuto para que a fila de atualização da loja funcione, porém caso a loja apresente problemas de performance é possível configurar o cron diretamente pelo servidor da loja, aprenda como configurar <a href="https://pluggto.atlassian.net/servicedesk/customer/portal/1/article/706019901?src=291176410" target="_blank"> clicando aqui</a></p>
+                                <br>
+
+                            </div>
+                        ]]>
+                    </comment>
+                    <label>Plugin Configuration</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>1</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <credenciais>
+                            <label>Credenciais de Acesso</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </credenciais>
+                        <client_id translate="label">
+                            <label>Client id</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </client_id>
+                        <client_secret translate="label">
+                            <label>Client Secret</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </client_secret>
+                        <app_id translate="label">
+                            <label>Application Id</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </app_id>
+                        <app_secret translate="label">
+                            <label>Application Secret</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </app_secret>
+                        <base translate="label">
+                            <label>Aplicação Base</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                <![CDATA[Caso opção seja Yes/Sim, o estoque e preço do produto <b>da loja</b> será sempre respeitado em caso de divergência]]>
+                            </comment>
+                        </base>
+                        <opera>
+                            <label>Operações</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </opera>
+
+                        <test translate="label">
+                            <label>Testar Aplicação</label>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pluggto/button_config</frontend_model>
+                            <process>test</process>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </test>
+                        <run_line translate="label">
+                            <label>Processar fila manualmente</label>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pluggto/button_config</frontend_model>
+                            <process>runLine</process>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </run_line>
+                    </fields>
+                </configuration>
+                <products translate="label">
+                    <label>Sincronização de produtos</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>2</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Ativo</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </active>
+                        <only_qtd translate="label">
+                            <label>Atualizar no Magento apenas estoque</label>
+                            <comment>
+                                <![CDATA[Caso opção seja Yes, apenas estoque será gravado no Magento, demais atributos (Foto,Preço,Sku...) só será enviado do Magento para o Plugg.To ]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </only_qtd>
+                        <no_update translate="label">
+                            <label>Não atualizar nenhuma informação no Magento</label>
+                            <comment>
+                                <![CDATA[Caso opção seja Yes, nenhuma atualização de produto será gravada no Magento, nem atualização de estoque.]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </no_update>
+                        <product_store_id translate="label">
+                            <label>Sincronizar produtos apenas de uma loja</label>
+                            <comment>
+                                <![CDATA[Caso deseje que produtos de apenas uma loja seja sincronizado com o Plugg.To selecione a loja aqui OU deixe em branco para sincronizar de todas as lojas.]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Stores</source_model>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </product_store_id>
+                        <product_store_default translate="label">
+                            <label>Loja para obter informações dos produtos</label>
+                            <comment>
+                                <![CDATA[Caso seu Magento possua mais de uma loja, selecione de qual loja o Plugg.To deverá pegar as informações. Caso esse campo esteja em branco, o Plugg.To irá puxar as informações dos produtos de qualquer loja]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Stores</source_model>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </product_store_default>
+                        <calculate_tax translate="label">
+                            <label>Incrementar preço do produto com o valor do imposto</label>
+                            <comment>
+                                <![CDATA[Caso sim, será adicionado a taxa de imposto no preço do produto]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </calculate_tax>
+                        <export_not_visible translate="label">
+                            <label>Exportar produtos como produtos simples no Pluggto</label>
+                            <comment>
+                                <![CDATA[Caso sim, os produtos configuráveis não serão exportados, e somente produtos simples serão enviados]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </export_not_visible>
+                        <delete_pluggto translate="label">
+                            <label>Apagar variações de um produto na Plugg.to quando variação foi deletada na loja</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </delete_pluggto>
+                        <disable_product translate="label">
+                            <label>Enviar produtos marcados como desabilitado na loja, como possuindo estoque 0 no
+                                Plugg.to
+                            </label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </disable_product>
+                        <send_disable_product translate="label">
+                            <label>Enviar produtos desabilitados
+                            </label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </send_disable_product>
+                        <use_stock_event translate="label">
+                            <label>Usar Evento de Atualização de Estoque separado
+                            </label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                <![CDATA[Coloque como "sim" somente se os produtos da loja não estiverem sendo atualizados automáticamente no PluggTo por outro método de atualização, colocar como "Sim" em conjunto com outro método de atualização pode ocasionar a duplicação do incremento/decremento do estoque na PluggTo   ]]>
+                            </comment>
+                        </use_stock_event>
+                        <stock_availability translate="label">
+                            <label>Enviar produtos marcados com "Sem Estoque" como possuindo Zero de quantidade
+                            </label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </stock_availability>
+                        <allow_remove_images translate="label">
+                            <label>Permitir que imagens sejam removidas do Plugg.To quando não encontradas na loja.
+                            </label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>13</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </allow_remove_images>
+                        <send_gruped_products translate="label">
+                            <label>Criar na Pluggto um produto agrupando dois ou mais produtos de um mesmo modelo no Magento.
+                            </label>
+                            <comment>
+                                <![CDATA[<b>Atenção: </b>Essão opção é para lojas que possuem produtos com variação por tamanho no Magento e deseja que na Pluggto exista também uma opção com variação de Cor e Tamanho para o comprador escolher.]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>14</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </send_gruped_products>
+                        <gruped_products_visibility translate="label">
+                            <label>Visibilidade dos produtos que são agrupadores no Magento</label>
+                            <comment>
+                                <![CDATA[Preencha esse campo somente se preencheu sim no campo anterior]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_VisibilityFormat</source_model>
+                            <sort_order>15</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </gruped_products_visibility>
+                        <atualizar_pluggto>
+                            <label>Opções de campos para atualizar na Pluggto</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <comment>
+                                <![CDATA[Campos que devem ser atualizados na Pluggto]]>
+                            </comment>
+                            <sort_order>16</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </atualizar_pluggto>
+                        <update_price translate="label">
+                            <label>Atualizar Preço na Pluggto</label>
+                            <comment>
+                                <![CDATA[Caso sim, o preço do Magento será atualizado para a Pluggto]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>17</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </update_price>
+                        <update_special_price translate="label">
+                            <label>Criar e atualizar Preço Especial na Pluggto</label>
+                            <comment>
+                                <![CDATA[Caso sim, o preço especial do Magento será criado e atualizado para a Pluggto, caso não, não será nem criado na Pluggto.]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>18</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </update_special_price>
+                        <update_quantity translate="label">
+                            <label>Atualizar Estoque na Pluggto</label>
+                            <comment>
+                                <![CDATA[Caso sim, o estoque do Magento será sincronizado com a Pluggto]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>19</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </update_quantity>
+                        <update_photos translate="label">
+                            <label>Atualizar Fotos na Pluggto</label>
+                            <comment>
+                                <![CDATA[Caso sim as fotos do produto serão atualizadas na Pluggto]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </update_photos>
+                        <update_title translate="label">
+                            <label>Atualizar nome do produto na Pluggto</label>
+                            <comment>
+                                <![CDATA[Caso sim o nome do produto será atualizado na Pluggto]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>21</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </update_title>
+                        <update_description translate="label">
+                            <label>Atualizar descrição na Pluggto</label>
+                            <comment>
+                                <![CDATA[Caso sim a descrição do produto será atualizado na Pluggto]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>22</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </update_description>
+                        <update_attributes translate="label">
+                            <label>Atualizar atributos e outras informações na Pluggto</label>
+                            <comment>
+                                <![CDATA[Caso sim os atributos do produto será atualizado na Pluggto]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>23</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </update_attributes>
+                        <update_categories translate="label">
+                            <label>Atualizar categories na Pluggto</label>
+                            <comment>
+                                <![CDATA[Caso sim os atributos do produto será atualizado na Pluggto]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>24</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </update_categories>
+                        <opera>
+                            <label>Operações</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>25</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </opera>
+                        <sync translate="label">
+                            <label>Verificar divergência de Estoque e Preço</label>
+                            <comment>
+                                <![CDATA[Essa opção irá verificar a necessidade de atualização do produto quando estoque e/ou preço estirem divergentes<br>Caso essa seja a aplicação base (Ver campo aplicação base), as divergências encontradas serão atualizadas no Plugg.To, caso contrário, o inverso.]]>
+                            </comment>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pluggto/button_config</frontend_model>
+                            <process>stockPriceSync</process>
+                            <sort_order>26</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </sync>
+                        <importProduct>
+                            <label>Importação de todos produtos para o Magento</label>
+                            <comment>
+                                <![CDATA[Essa opção irá puxar todos os produtos que estão no Plugg.To para a loja<br>Produtos que já existam na loja serão ignorados<br>Para que produtos sejam criados na loja a opção "Atualizar no Magento apenas estoque" deve estar marcado para <b>Não</b>.]]>
+                            </comment>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pluggto/button_config</frontend_model>
+                            <process>importAll</process>
+                            <sort_order>27</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </importProduct>
+                        <forceexport translate="label">
+                            <label>Exportação de todos os produtos para o PluggTo</label>
+                            <comment>
+                                <![CDATA[Essa opção irá enviar para o PluggTo uma atualização de TODOS os produtos indepentende de altereados ou não. Utilize essa oção para subir todos os produtos para o Plugg.To]]>
+                            </comment>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pluggto/button_config</frontend_model>
+                            <process>forceExport</process>
+                            <sort_order>28</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </forceexport>
+                        <setNotSync translate="label">
+                            <label>Marcar para por padrão não exportar produtos para o Plugg.To</label>
+                            <comment>
+                                <![CDATA[Por padrão o plugin exporta todos os produtos para o Plugg.to, clique no botão para marcar para não exportar automáticamente os produtos para o Plugg.To.]]>
+                            </comment>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pluggto/button_config</frontend_model>
+                            <process>setNotSync</process>
+                            <sort_order>29</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </setNotSync>
+                    </fields>
+                </products>
+                <orders translate="label">
+                    <label>Sincronização de Pedidos</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>3</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <allowcreate translate="label">
+                            <label>Criar pedidos do PluggTo na loja</label>
+                            <comment>
+                                <![CDATA[Habilite essa opção para que os pedidos recebidos do PluggTo sejam gravados na loja]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </allowcreate>
+                        <allowsend translate="label">
+                            <label>Enviar pedidos da loja para o PluggTo</label>
+                            <comment>
+                                <![CDATA[Habilite essa opção para que pedidos realizados na loja, sejam criados no PluggTo <br><b>Atenção: </b> Caso essa opção esteja habilitada pedidos realizados na Loja serão contabilizados em seu plano de consumo ]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </allowsend>
+                        <invoice>
+                            <label>Gerar Faturas Automáticamente</label>
+                            <comment>
+                                <![CDATA[Gerar faturas automáticamente para os pedidos com status de pagamento aprovados?]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </invoice>
+                        <substore>
+                            <label>Gravar nome da Sub Loja se houver</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </substore>
+                        <importOrders translate="label">
+                            <label>Importar últimos 100 pedidos</label>
+                            <comment>
+                                <![CDATA[Os últimos 100 pedidos que estão no PluggTo, e não estão no Magento, serão gerados na loja]]>
+                            </comment>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pluggto/button_config</frontend_model>
+                            <process>importOrders</process>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </importOrders>
+                        <exportOrders translate="label">
+                            <label>Exportar últimos 200 pedidos</label>
+                            <comment>
+                                <![CDATA[Os últimos 200 pedidos que estão no Loja serão atualizados no PluggTo]]>
+                            </comment>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pluggto/button_config</frontend_model>
+                            <process>exportOrders</process>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </exportOrders>
+                    </fields>
+                </orders>
+                <fields>
+                    <label>Atrelamento de Campos Básicos</label>
+                    <comment>
+                        <![CDATA[Informe o código do atributo em sua loja, correspondente aos campos abaixo]]>
+                    </comment>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>4</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <producto>
+                            <label>Campos do Produto</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </producto>
+                        <width>
+                            <label>Largura</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </width>
+                        <height>
+                            <label>Altura</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </height>
+                        <length>
+                            <label>Comprimento</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </length>
+                        <weight>
+                            <label>Peso</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                <![CDATA[Deixe em branco para utilizar o padrão da loja]]>
+                            </comment>
+                        </weight>
+                        <brand translate="label">
+                            <label>Marca/Fabricante</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </brand>
+                        <model translate="label">
+                            <label>Modelo</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </model>
+                        <manufacture_time translate="label">
+                            <label>Tempo para fabricação</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </manufacture_time>
+                        <handling_time translate="label">
+                            <label>Prazo de envio</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </handling_time>
+                        <ean translate="label">
+                            <label>EAN</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </ean>
+                        <nbm translate="label">
+                            <label>Código NBM</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </nbm>
+                        <ncm translate="label">
+                            <label>Código NCM</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </ncm>
+
+                        <origin translate="label">
+                            <label>Origem da Mercadoria</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>13</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </origin>
+                        <warranty_time translate="label">
+                            <label>Garantia (em meses)</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>14</sort_order>
+                            <show_in_default>2</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </warranty_time>
+                        <warranty_message translate="label">
+                            <label>Garantia (Mensagem de Garantia)</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>15</sort_order>
+                            <show_in_default>2</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </warranty_message>
+                        <description translate="label">
+                            <label>Descrição</label>
+                            <comment>
+                                <![CDATA[Caso vazio o campo "description" será utilizado para descrição]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>16</sort_order>
+                            <show_in_default>2</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </description>
+                        <isbn translate="label">
+                            <label>ISBN</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>17</sort_order>
+                            <show_in_default>2</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </isbn>
+                        <video translate="label">
+                            <label>URL do vídeo</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>18</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </video>
+                        <cost translate="label">
+                            <label>Custo do produto</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <sort_order>19</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </cost>
+                        <allowed_attributes>
+                            <label>Atributos dos produtos permitidos</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <comment>
+                                <![CDATA[Use <b>[CTRL]</b> para <b>selecionar</b> mais de um atributo que poderá ser enviado como atributo de um produto. Exemplo, cor, tamanho...]]>
+                            </comment>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </allowed_attributes>
+                        <generate_title>
+                            <label>Criar Atributos na loja</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+
+                            <sort_order>21</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </generate_title>
+                        <generate_attributes translate="label">
+                            <label>Criar atributos no Magento</label>
+                            <comment>
+                                <![CDATA[Caso você não tenha os atributos acima em sua loja, você pode clicar nesse botão para que o PluggTo os crie em sua loja automaticamente para você]]>
+                            </comment>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pluggto/button_create</frontend_model>
+                            <process>generate_attributes</process>
+                            <sort_order>22</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </generate_attributes>
+                        <generate_table_price translate="label">
+                            <label>Gerar/Atualizar atributos de preço</label>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pluggto/button_create</frontend_model>
+                            <process>update_table_price</process>
+                            <sort_order>23</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                <![CDATA[Atributos de preço permite que você crie um preço de venda para cada canal que deseja vender.]]>
+                            </comment>
+                        </generate_table_price>
+                    </fields>
+                </fields>
+                <shipping>
+                    <label>Atrelamento de métodos de entrega</label>
+                    <comment>
+                        <![CDATA[É obrigatório ao menos da indicação do método de entrega padrão, caso sua loja não possua uma ou mais formas de entregas abaixo, simplesmente, não preencha o campo.]]>
+                    </comment>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>5</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <standard translate="label">
+                            <label>Entrega Padrão</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_ShippingMethods</source_model>
+                            <comment>
+                                <![CDATA[Esse método de entrega será utilizado sempre que outro método não for encontrado]]>
+                            </comment>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </standard>
+                        <express translate="label">
+                            <label>Entrega Expressa</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_ShippingMethods</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </express>
+                        <economy translate="label">
+                            <label>Entrega Economica</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_ShippingMethods</source_model>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </economy>
+                        <pickup translate="label">
+                            <label>Retirar na loja</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_ShippingMethods</source_model>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </pickup>
+                        <scheduled translate="label">
+                            <label>Entrega Agendada</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_ShippingMethods</source_model>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </scheduled>
+                        <guaranteed translate="label">
+                            <label>Entrega Garantida</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_ShippingMethods</source_model>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </guaranteed>
+                        <onehour translate="label">
+                            <label>Entrega na hora</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_ShippingMethods</source_model>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </onehour>
+                        <fulfillment translate="label">
+                            <label>Entrega por terceiros (Fulfillment)</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_ShippingMethods</source_model>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </fulfillment>
+                    </fields>
+                </shipping>
+                <orderstatus>
+                    <label>Atrelamento de status de pedidos</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>6</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <pending translate="label">
+                            <label>Status for Pending Payments</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </pending>
+                        <approved translate="label">
+                            <label>Status for Approved Payments</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </approved>
+                        <partial_payment translate="label">
+                            <label>Status for Partial Payment</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                <![CDATA[Esse status é importante, por exemplo, para diferenciar pedidos do MercadoLivre que não tiveram o frete pago.]]>
+                            </comment>
+                        </partial_payment>
+                        <invoiced translate="label">
+                            <label>Status for Invoiced Orders</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </invoiced>
+                        <invoice_error translate="label">
+                            <label>Status for Invoiced Error</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                <![CDATA[Status para quando houver erro na emissão da nota fiscal]]>
+                            </comment>
+                        </invoice_error>
+                        <picking translate="label">
+                            <label>Status for Picking Payments</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </picking>
+                        <shipped translate="label">
+                            <label>Status for Shipping Orders</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </shipped>
+                        <delivered translate="label">
+                            <label>Status for Delivered Orders</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </delivered>
+                        <canceled translate="label">
+                            <label>Status for Canceled Orders</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </canceled>
+                        <under_review translate="label">
+                            <label>Status for Under Review Orders</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </under_review>
+                        <partial_invoiced translate="label">
+                            <label>Partial Invoiced (only marketplace)</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                <![CDATA[Status apenas para lojas que se comportam como MarketPlaces (não preencher caso não seja o caso)]]>
+                            </comment>
+                        </partial_invoiced>
+                        <partial_shipped translate="label">
+                            <label>Partial Shipped  (only marketplace)</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                <![CDATA[Status apenas para lojas que se comportam como MarketPlaces (não preencher caso não seja o caso)]]>
+                            </comment>
+                        </partial_shipped>
+                        <partial_delivered translate="label">
+                            <label>Partial Delivered (only marketplace)</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                <![CDATA[Status apenas para lojas que se comportam como MarketPlaces (não preencher caso não seja o caso)]]>
+                            </comment>
+                        </partial_delivered>
+                        <partial_canceled translate="label">
+                            <label>Partial Canceled (only marketplace)</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                <![CDATA[Status apenas para lojas que se comportam como MarketPlaces (não preencher caso não seja o caso)]]>
+                            </comment>
+                        </partial_canceled>
+                    </fields>
+                </orderstatus>
+                <configs>
+                    <label>Outras configurações</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>7</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <default_store translate="label">
+                            <label>Loja Padrão</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Stores</source_model>
+                            <comment>
+                                <![CDATA[Esta será a loja utilizada para salvar o cliente e os pedidos retornados do PluggTo]]>
+                            </comment>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </default_store>
+                        <paymentdefault translate="label">
+                            <label>Método de pagamento padrão</label>
+                            <comment>
+                                <![CDATA[Selecione o método de pagamento da sua loja que o Pluggto irá usar para gerar os pedidos]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_PaymentMethods</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </paymentdefault>
+                        <shippingdefault translate="label">
+                            <label>Método de entrega padrão</label>
+                            <comment>
+                                <![CDATA[Selecione o método de entrega da sua loja que o Pluggto irá usar para gerar os pedidos.]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_ShippingMethods</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </shippingdefault>
+                        <custom_document_field translate="label comment">
+                            <label>Código do campo de documento do cliente</label>
+                            <comment>
+                                <![CDATA[Informe o código de atributo do cliente, onde o número do documento deve ser salvo.]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </custom_document_field>
+                        <default_ie_field translate="label comment">
+                            <label>Código do campo de Inscrição Estadual do cliente</label>
+                            <comment>
+                                <![CDATA[Informe o código de atributo do cliente, onde o número do documento deve ser salvo.]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+
+                        </default_ie_field>
+                        <clear_queue translate="label comment">
+                            <label>Days to keep successful updates</label>
+                            <comment>
+                                <![CDATA[Set the number of days that successful processed updates should be keep in the queue, if is set to 0, it will in the queue for ever.]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+
+                        </clear_queue>
+                        <log_detailed translate="label comment">
+                            <label>Habiltar logs detalhado</label>
+                            <comment>
+                                <![CDATA[É recomendável manter essa opção ativa enquanto o módulo estiver em teste ou caso algum problema esteja ocorrendo na integração]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </log_detailed>
+                        <send_disable_imagem translate="label">
+                            <label>Enviar Imagens marcadas como Disabled para o Plugg.to</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </send_disable_imagem>
+                        <customer_group translate="label">
+                            <label>Grupo para salvar os clientes</label>
+                            <comment>
+                                <![CDATA[Selecione caso deseje salvar o cliente recebido do Plugg.to em algum grupo específico]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_CustomersGroups</source_model>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </customer_group>
+                        <magento_old_version translate="label">
+                            <label>Compatibilidade para versões antigas do Magento</label>
+                            <comment>
+                                <![CDATA[Algumas versões antigas possuem problema de compatibilidade, <i>Default Não</i>]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </magento_old_version>
+                        <disable_order_grid translate="label">
+                            <label>Desabilitar reescrita do grid de pedidos do Magento</label>
+                            <comment>
+                                <![CDATA[Ao utilizar essa opção não será mais possível visualizar e filtrar os pedidos pelo MarketPlace e ID do MarketPlace. <i>Default Não</i>]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </disable_order_grid>
+                        <state_format translate="label">
+                            <label>Formatar formato de campo "estado" nos pedidos</label>
+                            <comment>
+                                <![CDATA[Utilize essa opção somente se precisa alterar a forma de gravar o campo estado no seu magento, como sigla ou nome completo]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_StateFormat</source_model>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </state_format>
+                        <queues_quantity translate="label">
+                            <label>Quantidade de transações processadas a cada vez que a fila rodar</label>
+                            <comment>
+                                <![CDATA[Quanto mais transações, mais será exigido do seu servidor, deixei em branco para padrão. <i>Default 100</i>]]>
+                            </comment>
+                            <!-- [4.0.6] depends <multi_queues>1</multi_queues> removido:
+                                 o playline() usa esse valor mesmo com multi_queues desligado,
+                                 entao o campo deve ficar sempre visivel no admin. -->
+                            <frontend_type>text</frontend_type>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </queues_quantity>
+                        <multi_queues translate="label">
+                            <label>Habilitar processamento de filas simultaniamente</label>
+                            <comment>
+                                <![CDATA[Utilize essa opção apenas se necessita aumentar a capacidade de processamento da fila, requer muito mais memória e poder de processamento do seu servidor, <i>Default Não</i>]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </multi_queues>
+                        <multi_queues_quantity translate="label">
+                            <label>Quantidade de filas simultânias a serem executadas</label>
+                            <comment>
+                                <![CDATA[Quanto mais fila simultânias, mais será exigido do seu servidor]]>
+                            </comment>
+                            <depends>
+                                <multi_queues>1</multi_queues>
+                            </depends>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </multi_queues_quantity>
+                        <allow_reset translate="label">
+                            <label>Permitir Reinstalar Módulo</label>
+                            <comment>
+                                <![CDATA[Mantenha essa opção sempre como NÃO]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </allow_reset>
+                        <insert_fee_as_product translate="label">
+                            <label>Inserir despesas de parcalmento como um produto no pedido</label>
+                            <comment>
+                                <![CDATA[O Magento por padrão não possui um campo para inserção da taxa da venda, o que pode acasionar  que o valor total fique menor que o valor pago pelo cliente, selecionando sim nessa opção, caso haja uma diferença o valor irá entrar como um produto no pedido]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>13</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </insert_fee_as_product>
+                    </fields>
+                </configs>
+                <mageshop translate="label">
+                    <label>Melhorias MageShop</label>
+                    <comment>
+                        <![CDATA[<b>Ajustes de performance/comportamento da MageShop.</b><br/>
+                        Existem DOIS cenários de loja, e cada campo abaixo indica o valor recomendado em cada um:<br/>
+                        &bull; <b>PUSH</b> (fluxo normal, MAIORIA): o Magento ENVIA produtos/estoque/preço para a Plugg.To, que distribui aos marketplaces; pedidos voltam da Plugg.To.<br/>
+                        &bull; <b>INVERSO / PULL</b>: a Plugg.To é a ORIGEM &mdash; traz produtos/estoque/preço PARA a loja (age como ERP); a loja só ENVIA pedidos.]]>
+                    </comment>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>100</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <parallel_fetch translate="label">
+                            <label>Busca paralela de produtos (curl_multi)</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> número de buscas SIMULTÂNEAS (curl_multi) na Plugg.To ao processar a fila, apenas para GET de produtos.<br/>
+                                <b>Por que existe:</b> o processamento era serial &mdash; uma única chamada lenta travava todas as seguintes (head-of-line) e causava os "pulos" do cron. Em paralelo, as travas são absorvidas.<br/>
+                                <b>Loja PUSH:</b> pode deixar <i>0</i> (ela quase não faz GET de produto; só empurra). Ligue (ex.: 5) só se a fila de GET crescer.<br/>
+                                <b>Loja INVERSA/PULL:</b> recomendado <i>5</i> (ela vive de GET de produtos vindos da Plugg.To).<br/>
+                                <b>Atenção:</b> não use valores altos &mdash; a Plugg.To estrangula rajadas; 5 é seguro até 70+ itens. <b>0 ou vazio = desligado (serial).</b>]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </parallel_fetch>
+                        <sync_skip_disabled translate="label">
+                            <label>Ignorar produtos desabilitados na sincronização de estoque/preço</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> ignora produtos DESABILITADOS na loja durante o sync de estoque/preço.<br/>
+                                <b>Por que existe:</b> com "disable_product" ligado, o produto desabilitado tem o estoque forçado a 0 na comparação &mdash; isso gera uma diferença eterna contra o estoque real da Plugg.To que nunca reconcilia, re-enfileirando o item a cada ciclo (centenas por rodada).<br/>
+                                <b>Loja PUSH:</b> <i>Não</i>. Ela usa o desabilitado para ZERAR o produto no marketplace, então precisa processá-lo.<br/>
+                                <b>Loja INVERSA/PULL:</b> <i>Sim</i>. Ela não exporta nada; o desabilitado só geraria churn.<br/>
+                                <b>Default: Não.</b>]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </sync_skip_disabled>
+                        <sync_stock_cron translate="label">
+                            <label>Frequência do sync de estoque/preço (expressão cron)</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> frequência (expressão cron) do job de sync de estoque/preço (pluggto_sync_stock_price). Formato: <b>min hora dia mês diasemana</b>. Ex.: <i>*/2 * * * *</i>=2min, <i>*/5 * * * *</i>=5min, <i>*/10 * * * *</i>=10min.<br/>
+                                <b>Por que existe:</b> esse job baixa a tabela INTEIRA da Plugg.To e compara todos os produtos. Rodar com muita frequência sobrecarrega; na loja inversa, enche a fila mais rápido do que ela drena.<br/>
+                                <b>Loja PUSH:</b> <i>*/2</i> &mdash; estoque fresco no marketplace, evita vender o que já acabou (oversell).<br/>
+                                <b>Loja INVERSA/PULL:</b> <i>*/10</i> &mdash; reduz a carga e deixa a fila drenar.<br/>
+                                <b>Default: */2.</b> Não deixe em branco nem com formato inválido (o job para de rodar).]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </sync_stock_cron>
+                        <cron_playline translate="label">
+                            <label>Cron: processar a fila / playline (expressão cron)</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> com que frequência o cron <i>pluggto_observer</i> roda o <i>playline</i> &mdash; o processador da fila que consome os itens pendentes (GET busca produto/pedido da Plugg.To e grava na loja; PUT empurra pra Plugg.To). É o "trabalhador" principal.<br/>
+                                <b>Formato:</b> min hora dia mês diasemana. <b>Default: */1</b> (todo minuto).<br/>
+                                <b>Recomendação:</b> mantenha <i>*/1</i> nos dois cenários &mdash; a fila precisa ser consumida com frequência. Só aumente se quiser aliviar o servidor numa loja de baixo volume. Não deixe em branco.]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>32</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </cron_playline>
+                        <cron_queuecycle translate="label">
+                            <label>Cron: ciclo de fila / worker (expressão cron)</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> com que frequência o cron <i>pluggto_cron</i> roda o <i>runQueueCycle</i> &mdash; que executa exportação em lote + playline + limpeza, protegido por um lock interno de 5 min.<br/>
+                                <b>Formato:</b> min hora dia mês diasemana. <b>Default: */1</b> (todo minuto; o lock interno limita o trabalho pesado a cada ~5 min).<br/>
+                                <b>Recomendação:</b> <i>*/1</i> nos dois cenários. É o consolidado que substituiu os scripts soltos antigos.]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>33</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </cron_queuecycle>
+                        <cron_bulkexport translate="label">
+                            <label>Cron: exportação em lote (expressão cron)</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> com que frequência o cron <i>export_observer</i> roda o <i>runBulkExport</i> &mdash; exporta produtos em lote da loja para a Plugg.To.<br/>
+                                <b>Formato:</b> min hora dia mês diasemana. <b>Default: */1</b>.<br/>
+                                <b>Loja PUSH:</b> <i>*/1</i> (envia produtos para os marketplaces).<br/>
+                                <b>Loja INVERSA/PULL:</b> pode espaçar (ex.: <i>*/30</i>) ou até ignorar, já que ela não exporta produtos. Não deixe em branco.]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>34</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </cron_bulkexport>
+                        <cron_orders translate="label">
+                            <label>Cron: atualização de pedidos (expressão cron)</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> com que frequência o cron <i>pluggto_orders_update</i> roda o <i>ordersUpdate</i> &mdash; atualiza/sincroniza pedidos com a Plugg.To.<br/>
+                                <b>Formato:</b> min hora dia mês diasemana. <b>Default: */5</b> (a cada 5 min).<br/>
+                                <b>Recomendação:</b> <i>*/5</i> nos dois cenários. Aumente se não precisar de pedidos tão frescos. Não deixe em branco.]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>36</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </cron_orders>
+                        <cron_clearqueue translate="label">
+                            <label>Cron: limpeza da fila (expressão cron)</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> com que frequência o cron <i>clear_observer</i> roda o <i>clearQueue</i> &mdash; apaga da tabela da fila os registros antigos já processados/falhados.<br/>
+                                <b>Formato:</b> min hora dia mês diasemana. <b>Default: 0 1 * * *</b> (uma vez por dia, 01h).<br/>
+                                <b>Recomendação:</b> 1x/dia costuma bastar nos dois cenários. Em loja com fila muito grande, pode rodar mais vezes (ex.: <i>0 */6 * * *</i> = a cada 6h). Não deixe em branco.]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>38</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </cron_clearqueue>
+                        <perf_log translate="label">
+                            <label>Log de performance (debug)</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> grava os tempos de execução dos crons (playline, syncPriceStock, getTableData, etc.) em <i>var/log/pluggto_perf.log</i>.<br/>
+                                <b>Por que existe:</b> permite diagnosticar lentidão/gargalos de uma loja sem precisar do CLI.<br/>
+                                <b>Quando usar (qualquer cenário):</b> ligue <i>Sim</i> SÓ para investigar um problema e <b>desligue depois</b> (evita log crescendo à toa). O script <i>shell/pluggto_bench.php</i> já liga isso sozinho no processo dele.<br/>
+                                <b>Default: Não.</b>]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </perf_log>
+                        <skip_product_export translate="label">
+                            <label>Não exportar produtos/estoque para a Plugg.To (loja só recebe)</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> desliga os eventos que enviam PRODUTO/ESTOQUE da loja para a Plugg.To (save de produto, alteração de atributo em massa, mudança de estoque e exclusão de produto). <b>Pedidos NÃO são afetados</b> &mdash; continuam indo normalmente para a Plugg.To.<br/>
+                                <b>Por que existe:</b> numa loja inversa, ao importar um produto da Plugg.To a loja o salva, e o evento de save dispara um envio de volta &mdash; um PUT vazio que a Plugg.To responde "No changes found". São milhares de chamadas inúteis que entopem a fila.<br/>
+                                <b>Loja PUSH:</b> <i>Não</i> (OBRIGATÓRIO) &mdash; é justamente assim que ela envia os produtos para os marketplaces.<br/>
+                                <b>Loja INVERSA/PULL:</b> <i>Sim</i> &mdash; ela só recebe produtos; nunca empurra de volta.<br/>
+                                <b>Default: Não.</b>]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </skip_product_export>
+                    </fields>
+                </mageshop>
+                <marketplace>
+                    <label>Criar Produtos / MarketPlace / Estoque Virtual</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>8</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <save_external_products>
+                            <label>Permitir salvar produtos de terceiros</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                               Marque com sim, para abrir uma excessão e permitir salvar/atualizar apenas produtos de terceiros mesmo que a opção "Não atualizar nenhuma informação no Magento" esteja marcado com SIM.
+                            </comment>
+                        </save_external_products>
+                        <attribute_set_to_create_attribute>
+                            <label>Attribute Set para criar atributo</label>
+                            <frontend_type>select</frontend_type>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_AttributeSet</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>2</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                Defina o Attribute Set para criar atributo (Quando for necessário criar produto no Magento), caso o atributo não esteja criado no Magento
+                            </comment>
+                        </attribute_set_to_create_attribute>
+                        <store_to_create>
+                            <label>Store to Generate Products</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Websites</source_model>
+                            <comment>
+                                <![CDATA[Esta será a loja utilizada para salvar o cliente e os pedidos retornados do PluggTo]]>
+                            </comment>
+                            <sort_order>3</sort_order>
+                            <show_in_default>2</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                Informe a loja para gerar os produtos
+                            </comment>
+                        </store_to_create>
+                        <allowed_configurable_attributes>
+                            <label>Atributos Configuraveis Permitidos</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>Thirdlevel_Pluggto_Model_Source_Attributes</source_model>
+                            <comment>
+                                <![CDATA[Use <b>[CTRL]</b> para <b>selecionar</b> mais de um atributo que poderá ser usado como atributo de um produto configuravel. Exemplo, cor, tamanho...]]>
+                            </comment>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </allowed_configurable_attributes>
+                    </fields>
+                </marketplace>
+                <tables_price_customization>
+                    <comment>
+                        <![CDATA[
+                            <div>
+                                <p>Essa funcionalidade envia os distintos preços e estoques de suas lojas para tabelas de preços e estoques distintos do PluggTo </p>
+                            </div>
+                        ]]>
+                    </comment>
+                    <label>Estoque e preços diferenciados por loja</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>9</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active>
+                            <label>Ativar funciondade de tabela de preço/estoque por loja</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                Após ativar essa funcionalidade é necessário selecionar a visão do loja para configurar o código de código da tabela de preço de cada loja
+                            </comment>
+                        </active>
+                        <table_price translate="label">
+                            <label>Código da tabela de preço</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                            <comment>
+                                (Prenchimento opcional) O preço dos produtos dessa loja irá ir para a tabela de preço com código informado nesse campo
+                            </comment>
+                        </table_price>
+                    </fields>
+                </tables_price_customization>
+                <advanced_operation>
+                    <label>Operações avançadas</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>10</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <exportOrders translate="label">
+                            <label>Apagar pedidos duplicados do PluggTo e travar para que não ocorra novamente</label>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pluggto/button_config</frontend_model>
+                            <process>createPluggOrderUnique</process>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                <![CDATA[<b>Obrigatório realizar o Backup do banco de Dados antes de realizar essa operação</b>. Essa operação irá apagar todos pedidos duplicados do PluggTo, e inserir uma trava no banco de dados que impedirá que novos pedidos sejam duplicados]]>
+                            </comment>
+                        </exportOrders>
+                        <reinstall translate="label">
+                            <label>Reinstalar Módulo</label>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pluggto/button_config</frontend_model>
+                            <process>reinstall</process>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </reinstall>
+                    </fields>
+                </advanced_operation>
+            </groups>
+        </pluggto>
+    </sections>
+</config>
