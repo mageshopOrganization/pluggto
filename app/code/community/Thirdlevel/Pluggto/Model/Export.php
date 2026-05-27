@@ -385,6 +385,24 @@ class Thirdlevel_Pluggto_Model_Export extends Mage_Core_Model_Abstract
         $modelOrderCollection = $modelOrder->getCollection()->addAttributeToFilter('plugg_id', array('neq' => ''))->addAttributeToFilter('updated_at', array('from' => $fromDate, 'to' => $dateEnd, 'date' => true))->addFieldToFilter('status', array('nin' => array($pending, $approved, $canceled)))->setOrder('entity_id', 'ASC');
 
         foreach ($modelOrderCollection as $thisOrder) {
+            // [anti-flood] So re-envia se o pedido mudou DESDE o ultimo envio.
+            // Sem isso, todo pedido alterado nas ultimas 24h era re-enviado a cada
+            // ciclo (a cada 5 min), e a Plugg.To respondia "Changes not found in the
+            // order" (400) — gerando linhas inuteis sem parar. Aqui comparamos o
+            // updated_at do pedido com o created da ultima linha de fila dele:
+            // se nao houve alteracao depois do ultimo envio, pula.
+            $lastLine = Mage::getModel('pluggto/line')->getCollection()
+                ->addFieldToFilter('what', 'orders')
+                ->addFieldToFilter('storeid', $thisOrder->getEntityId())
+                ->setOrder('created', 'DESC')
+                ->setPageSize(1)
+                ->getFirstItem();
+
+            if ($lastLine->getId()
+                && strtotime($thisOrder->getUpdatedAt()) < strtotime($lastLine->getCreated())) {
+                continue; // sem mudanca desde o ultimo envio -> nao re-enfileira
+            }
+
             $this->exportOrderToQueue($thisOrder->getEntityId());
         }
 
