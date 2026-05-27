@@ -351,15 +351,28 @@ class Thirdlevel_Pluggto_Model_Product extends Mage_Core_Model_Abstract
                 } elseif ($configs['configuration']['base']) {
                     Mage::getSingleton('pluggto/export')->exportProductToQueue($product, false, 'PUT', true);
                 } else {
-                    // lock first to see if already is not in database
-                    $line = Mage::getModel('pluggto/line');
-                    $line->setWhat('products');
-                    $line->setUrl('products' . '/' . rawurlencode(trim($thisData['id'])));
-                    $line->setPluggtoid($thisData['id']);
-                    $line->setOpt('GET');
-                    $line->setDirection('from');
-                    $line->setCreated(date("Y-m-d H:i:s"));
-                    $line->save();
+                    // [anti-flood] Nao re-enfileira GET de um produto que ja falhou
+                    // com 404 recentemente. Alguns ids aparecem na tabela em massa da
+                    // Plugg.To mas dao 404 no GET individual; sem isso, o sync recriava
+                    // o mesmo 404 (status=2) a cada ciclo. Mesma janela do webhook (24h).
+                    $cutoff404 = date('Y-m-d H:i:s', strtotime('-24 hours'));
+                    $recent404 = Mage::getModel('pluggto/line')->getCollection()
+                        ->addFieldToFilter('pluggtoid', $thisData['id'])
+                        ->addFieldToFilter('status', 2)
+                        ->addFieldToFilter('code', 404)
+                        ->addFieldToFilter('created', ['gteq' => $cutoff404])
+                        ->getSize();
+
+                    if ($recent404 == 0) {
+                        $line = Mage::getModel('pluggto/line');
+                        $line->setWhat('products');
+                        $line->setUrl('products' . '/' . rawurlencode(trim($thisData['id'])));
+                        $line->setPluggtoid($thisData['id']);
+                        $line->setOpt('GET');
+                        $line->setDirection('from');
+                        $line->setCreated(date("Y-m-d H:i:s"));
+                        $line->save();
+                    }
                 }
             } // end if
 
@@ -810,8 +823,20 @@ class Thirdlevel_Pluggto_Model_Product extends Mage_Core_Model_Abstract
                     }
 
                     $scope = array('image', 'small_image', 'thumbnail');
-                    $product->addImageToMediaGallery($img, $scope, false, $disable);
-                    $product->getMediaGalleryImages();
+                    // Uma imagem invalida (URL 404/HTML, formato nao suportado, arquivo
+                    // corrompido) lancava "Invalid image file type" e derrubava o save do
+                    // produto INTEIRO (item virava status=2 e ficava preso em falha).
+                    // Agora a imagem ruim e ignorada (logada) e o produto e salvo mesmo assim.
+                    try {
+                        $product->addImageToMediaGallery($img, $scope, false, $disable);
+                        $product->getMediaGalleryImages();
+                    } catch (Exception $e) {
+                        Mage::helper('pluggto')->WriteLogForModule(
+                            'Error',
+                            'Imagem ignorada (' . $picture['url'] . '): ' . $e->getMessage()
+                        );
+                        continue;
+                    }
                 }
             }
 
