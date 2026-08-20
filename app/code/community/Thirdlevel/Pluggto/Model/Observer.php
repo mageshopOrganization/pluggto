@@ -12,6 +12,124 @@ class Thirdlevel_Pluggto_Model_Observer
         return (bool) Mage::getStoreConfig('pluggto/mageshop/skip_product_export');
     }
 
+    /**
+     * Campos do produto que a Plugg.To realmente consome no export.
+     * Se NENHUM deles mudou entre origData e data, o PUT que sera enfileirado
+     * vai retornar "No changes found" da Plugg.To - puro desperdicio.
+     * Estoque nao entra aqui: tem observer proprio (stockChange) com filtro proprio.
+     */
+    protected function _getWatchedFields()
+    {
+        return array('price', 'special_price', 'name', 'description', 'status', 'visibility');
+    }
+
+    /**
+     * Compara valor antigo x novo respeitando o tipo do campo.
+     * - price/special_price: normaliza pra float com 4 casas (evita 1.99 vs "1.9900" falso positivo)
+     * - status/visibility: cast pra int
+     * - resto: string
+     * NULL e '' sao tratados como iguais.
+     */
+    protected function _valuesDiffer($field, $orig, $new)
+    {
+        if ($orig === null) { $orig = ''; }
+        if ($new  === null) { $new  = ''; }
+
+        if ($field === 'price' || $field === 'special_price') {
+            $o = ($orig === '' || $orig === false) ? 0.0 : (float) $orig;
+            $n = ($new  === '' || $new  === false) ? 0.0 : (float) $new;
+            return round($o, 4) !== round($n, 4);
+        }
+
+        if ($field === 'status' || $field === 'visibility') {
+            $o = ($orig === '' || $orig === false) ? 0 : (int) $orig;
+            $n = ($new  === '' || $new  === false) ? 0 : (int) $new;
+            return $o !== $n;
+        }
+
+        return (string) $orig !== (string) $new;
+    }
+
+    /**
+     * Formata um valor de campo pra sair legivel/compacto no log de auditoria.
+     * - description: sempre "len=X:md5=Y" (a descricao pode ter varios KB de HTML)
+     * - name/outros textos: aspas + trunca em 60 chars com sufixo (len=N)
+     * - price/special_price: numero arredondado a 4 casas (mesma escala do comparador)
+     * - status/visibility: inteiro
+     * - null/'' explicitos pra distinguir "nao setado" de "string vazia"
+     */
+    protected function _formatValueForLog($field, $value)
+    {
+        if ($value === null) { return 'null'; }
+        if ($value === '')   { return '""'; }
+
+        if ($field === 'description') {
+            $str = (string) $value;
+            return 'len=' . strlen($str) . ':md5=' . substr(md5($str), 0, 8);
+        }
+
+        if ($field === 'price' || $field === 'special_price') {
+            return (string) round((float) $value, 4);
+        }
+
+        if ($field === 'status' || $field === 'visibility') {
+            return (string) (int) $value;
+        }
+
+        $str = (string) $value;
+        if (strlen($str) > 60) {
+            return '"' . substr($str, 0, 60) . '...(len=' . strlen($str) . ')"';
+        }
+        return '"' . $str . '"';
+    }
+
+    /**
+     * Gera relatorio de diff completo pra auditoria:
+     * - 'diff'   => [campo => "orig->novo"] (so os campos que mudaram)
+     * - 'values' => [campo => "valor_atual"] (TODOS os observados, snapshot pos-save)
+     * Serve pros logs de ENQUEUE (diff) e SKIP (values).
+     */
+    protected function _getDiffReport($product)
+    {
+        $diff   = array();
+        $values = array();
+
+        foreach ($this->_getWatchedFields() as $f) {
+            $orig = $product->getOrigData($f);
+            $new  = $product->getData($f);
+            $values[$f] = $this->_formatValueForLog($f, $new);
+            if ($this->_valuesDiffer($f, $orig, $new)) {
+                $diff[$f] = $this->_formatValueForLog($f, $orig) . '->' . $this->_formatValueForLog($f, $new);
+            }
+        }
+
+        return array('diff' => $diff, 'values' => $values);
+    }
+
+    /**
+     * Serializa um mapa [chave => valor_ja_formatado] pra "chave=valor, chave2=valor2".
+     */
+    protected function _kvString($map)
+    {
+        $out = array();
+        foreach ($map as $k => $v) {
+            $out[] = $k . '=' . $v;
+        }
+        return implode(', ', $out);
+    }
+
+    /**
+     * Idem, mas pra diff: "campo: orig->novo; campo2: orig->novo".
+     */
+    protected function _diffString($map)
+    {
+        $out = array();
+        foreach ($map as $k => $v) {
+            $out[] = $k . ': ' . $v;
+        }
+        return implode('; ', $out);
+    }
+
     // update item order when a order is placed (ok)
     public function placeOrder(Varien_Event_Observer $observer)
     {
@@ -220,6 +338,40 @@ class Thirdlevel_Pluggto_Model_Observer
 
         try {
             $product = $observer->getProduct();
+
+            // [MageShop] Anti-desperdicio pra loja que tem ERP externo salvando
+            // produtos em massa (ex.: T5 via SOAP): se o save nao mudou nenhum
+            // campo que a Plugg.To consome, o PUT enfileirado vai retornar
+            // "No changes found" - pura latencia. Gated por mageshop/observer_skip_unchanged.
+            // Estoque nao entra: tem rota propria em stockChange.
+            //
+            // Auditoria (respeita mageshop/perf_log via WriteLogForModule('PERF', ...)):
+            // - SKIP:    values={price=1.99, name="Foo", description=len=250:md5=abcd1234, ...}
+            //            snapshot pos-save de TODOS os campos observados, pra voce comparar
+            //            entre eventos e enxergar se o T5 esta bombardeando o mesmo produto.
+            // - ENQUEUE: diff={price: 1.99->2.49; name: "Foo"->"Foo V2"}
+            //            so os campos que mudaram, com valor antigo -> novo.
+            if (Mage::getStoreConfig('pluggto/mageshop/observer_skip_unchanged')) {
+                $report = $this->_getDiffReport($product);
+
+                if (empty($report['diff'])) {
+                    Mage::helper('pluggto')->WriteLogForModule(
+                        'PERF',
+                        'observer_skip: sku=' . $product->getSku()
+                        . ' entity_id=' . $product->getId()
+                        . ' values={' . $this->_kvString($report['values']) . '}'
+                    );
+                    return;
+                }
+
+                Mage::helper('pluggto')->WriteLogForModule(
+                    'PERF',
+                    'observer_enqueue: sku=' . $product->getSku()
+                    . ' entity_id=' . $product->getId()
+                    . ' diff={' . $this->_diffString($report['diff']) . '}'
+                );
+            }
+
             Mage::getSingleton('pluggto/export')->exportProductToQueue($product);
         } catch (exception $e) {
             Mage::helper('pluggto')->WriteLogForModule('Error', 'Aftersaveproduct: ' . print_r($e->getMessage(), 1));

@@ -1273,11 +1273,10 @@
                         <parallel_fetch translate="label">
                             <label>Busca paralela de produtos (curl_multi)</label>
                             <comment>
-                                <![CDATA[<b>O que faz:</b> número de buscas SIMULTÂNEAS (curl_multi) na Plugg.To ao processar a fila, apenas para GET de produtos.<br/>
-                                <b>Por que existe:</b> o processamento era serial &mdash; uma única chamada lenta travava todas as seguintes (head-of-line) e causava os "pulos" do cron. Em paralelo, as travas são absorvidas.<br/>
-                                <b>Loja PUSH:</b> pode deixar <i>0</i> (ela quase não faz GET de produto; só empurra). Ligue (ex.: 5) só se a fila de GET crescer.<br/>
-                                <b>Loja INVERSA/PULL:</b> recomendado <i>5</i> (ela vive de GET de produtos vindos da Plugg.To).<br/>
-                                <b>Atenção:</b> não use valores altos &mdash; a Plugg.To estrangula rajadas; 5 é seguro até 70+ itens. <b>0 ou vazio = desligado (serial).</b>]]>
+                                <![CDATA[<b>O que faz:</b> quantas buscas na Plugg.To rodam em paralelo (curl_multi). Essa config é a <b>CHAVE-MESTRA</b> do paralelismo &mdash; com 0 ou vazio, TODO o playline cai em modo serial (o campo "Escritas paralelas (PUT/POST/DEL — curl_multi)" também fica inativo).<br/>
+                                <b>Recomendado:</b> <b>5</b> (default) em qualquer cenário &mdash; PUSH ou PULL. É seguro até 70+ itens; a Plugg.To tolera bem.<br/>
+                                <b>Só desligue (0):</b> se estiver debugando um problema específico da paralelização.<br/>
+                                <b>Não passe de 10</b> &mdash; a Plugg.To estrangula rajadas grandes.]]>
                             </comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>10</sort_order>
@@ -1285,13 +1284,29 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </parallel_fetch>
+                        <parallel_writes translate="label">
+                            <label>Escritas paralelas (PUT/POST/DEL — curl_multi)</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> quantas escritas (PUT/POST/DEL) rodam em paralelo. Escritas do mesmo produto NUNCA saem juntas &mdash; a ordem é preservada.<br/>
+                                <b>Pré-requisito:</b> o campo "Busca paralela de produtos (curl_multi)" precisa estar em 1 ou mais &mdash; senão essa config é ignorada.<br/>
+                                <b>Recomendado:</b> <b>5</b> (default) em loja PUSH (que exporta pra Plugg.To).<br/>
+                                <b>Loja INVERSA/PULL</b> (o campo "Não exportar produtos/estoque para a Plugg.To (loja só recebe)" está Sim): pode deixar <b>1</b> ou <b>2</b> &mdash; ela quase não empurra.<br/>
+                                <b>Não passe de 10.</b> <b>1 = comportamento antigo (serial).</b>]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>15</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </parallel_writes>
                         <sync_skip_disabled translate="label">
                             <label>Ignorar produtos desabilitados na sincronização de estoque/preço</label>
                             <comment>
-                                <![CDATA[<b>O que faz:</b> ignora produtos DESABILITADOS na loja durante o sync de estoque/preço.<br/>
-                                <b>Por que existe:</b> com "disable_product" ligado, o produto desabilitado tem o estoque forçado a 0 na comparação &mdash; isso gera uma diferença eterna contra o estoque real da Plugg.To que nunca reconcilia, re-enfileirando o item a cada ciclo (centenas por rodada).<br/>
-                                <b>Loja PUSH:</b> <i>Não</i>. Ela usa o desabilitado para ZERAR o produto no marketplace, então precisa processá-lo.<br/>
-                                <b>Loja INVERSA/PULL:</b> <i>Sim</i>. Ela não exporta nada; o desabilitado só geraria churn.<br/>
+                                <![CDATA[<b>O que faz:</b> pula produtos desabilitados no compare com a Plugg.To (não gera PUT pra eles).<br/>
+                                <b>Como decidir (olhe o campo "Enviar produtos marcados como desabilitado na loja, como possuindo estoque 0 no Plugg.to"):</b><br/>
+                                &bull; Se esse campo estiver <b>Sim</b> &rarr; deixe aqui <b>Não</b> (você QUER zerar estoque de disabled no marketplace, precisa processá-los).<br/>
+                                &bull; Se esse campo estiver <b>Não</b> &rarr; deixe aqui <b>Sim</b> (disabled é só flag interna, não precisa sincronizar &mdash; economiza trabalho).<br/>
+                                Loja INVERSA/PULL (o campo "Não exportar produtos/estoque para a Plugg.To (loja só recebe)" está Sim): sempre <b>Sim</b>.<br/>
                                 <b>Default: Não.</b>]]>
                             </comment>
                             <frontend_type>select</frontend_type>
@@ -1304,11 +1319,12 @@
                         <sync_stock_cron translate="label">
                             <label>Frequência do sync de estoque/preço (expressão cron)</label>
                             <comment>
-                                <![CDATA[<b>O que faz:</b> frequência (expressão cron) do job de sync de estoque/preço (pluggto_sync_stock_price). Formato: <b>min hora dia mês diasemana</b>. Ex.: <i>*/2 * * * *</i>=2min, <i>*/5 * * * *</i>=5min, <i>*/10 * * * *</i>=10min.<br/>
-                                <b>Por que existe:</b> esse job baixa a tabela INTEIRA da Plugg.To e compara todos os produtos. Rodar com muita frequência sobrecarrega; na loja inversa, enche a fila mais rápido do que ela drena.<br/>
-                                <b>Loja PUSH:</b> <i>*/2</i> &mdash; estoque fresco no marketplace, evita vender o que já acabou (oversell).<br/>
-                                <b>Loja INVERSA/PULL:</b> <i>*/10</i> &mdash; reduz a carga e deixa a fila drenar.<br/>
-                                <b>Default: */2.</b> Não deixe em branco nem com formato inválido (o job para de rodar).]]>
+                                <![CDATA[<b>O que faz:</b> a cada quanto tempo o job de sync de estoque/preço roda. Ele baixa a tabela inteira da Plugg.To e compara com o Magento (pode levar 2+ minutos em lojas grandes).<br/>
+                                <b>Formato:</b> <b>min hora dia mês diasemana</b>. Ex.: <i>*/10 * * * *</i> = a cada 10 min.<br/>
+                                <b>Recomendado:</b> <i>*/10 * * * *</i> (default). Bom compromisso entre frescor do estoque e carga no servidor.<br/>
+                                <b>Só diminua pra */5 ou */2 se:</b> houver oversell recorrente (venda de item já esgotado no marketplace).<br/>
+                                <b>Loja INVERSA/PULL</b> (o campo "Não exportar produtos/estoque para a Plugg.To (loja só recebe)" está Sim): pode subir pra <i>*/15</i> &mdash; a fila drena mais devagar.<br/>
+                                Nunca deixe em branco ou com formato inválido &mdash; o job para de rodar.]]>
                             </comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>30</sort_order>
@@ -1316,6 +1332,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </sync_stock_cron>
+                        <!-- OBSOLETO: coberto por pluggto_cron / runQueueCycle desde 2026-08-19. Campo mantido comentado pra referencia historica.
                         <cron_playline translate="label">
                             <label>Cron: processar a fila / playline (expressão cron)</label>
                             <comment>
@@ -1329,12 +1346,14 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </cron_playline>
+                        /OBSOLETO -->
                         <cron_queuecycle translate="label">
                             <label>Cron: ciclo de fila / worker (expressão cron)</label>
                             <comment>
-                                <![CDATA[<b>O que faz:</b> com que frequência o cron <i>pluggto_cron</i> roda o <i>runQueueCycle</i> &mdash; que executa exportação em lote + playline + limpeza, protegido por um lock interno de 5 min.<br/>
-                                <b>Formato:</b> min hora dia mês diasemana. <b>Default: */1</b> (todo minuto; o lock interno limita o trabalho pesado a cada ~5 min).<br/>
-                                <b>Recomendação:</b> <i>*/1</i> nos dois cenários. É o consolidado que substituiu os scripts soltos antigos.]]>
+                                <![CDATA[<b>O que faz:</b> a cada quanto tempo o worker principal roda &mdash; ele processa a fila (playline), faz exportação em lote e a limpeza. Protegido por lock interno de 5 min.<br/>
+                                <b>Formato:</b> min hora dia mês diasemana.<br/>
+                                <b>Recomendado:</b> <b>*/1 * * * *</b> (default, todo minuto). O lock interno já limita o trabalho pesado a ~5 min &mdash; não sobrecarrega.<br/>
+                                Não deixe em branco.]]>
                             </comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>33</sort_order>
@@ -1342,6 +1361,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </cron_queuecycle>
+                        <!-- OBSOLETO: coberto por pluggto_cron / runQueueCycle desde 2026-08-19. Campo mantido comentado pra referencia historica.
                         <cron_bulkexport translate="label">
                             <label>Cron: exportação em lote (expressão cron)</label>
                             <comment>
@@ -1356,12 +1376,14 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </cron_bulkexport>
+                        /OBSOLETO -->
                         <cron_orders translate="label">
                             <label>Cron: atualização de pedidos (expressão cron)</label>
                             <comment>
-                                <![CDATA[<b>O que faz:</b> com que frequência o cron <i>pluggto_orders_update</i> roda o <i>ordersUpdate</i> &mdash; atualiza/sincroniza pedidos com a Plugg.To.<br/>
-                                <b>Formato:</b> min hora dia mês diasemana. <b>Default: */5</b> (a cada 5 min).<br/>
-                                <b>Recomendação:</b> <i>*/5</i> nos dois cenários. Aumente se não precisar de pedidos tão frescos. Não deixe em branco.]]>
+                                <![CDATA[<b>O que faz:</b> a cada quanto tempo o job de atualização de pedidos roda (sincroniza status dos pedidos com a Plugg.To).<br/>
+                                <b>Formato:</b> min hora dia mês diasemana.<br/>
+                                <b>Recomendado:</b> <b>*/5 * * * *</b> (default, a cada 5 min). Vale nos dois cenários.<br/>
+                                Aumente pra <i>*/10</i> ou mais se não precisar de pedidos tão frescos. Não deixe em branco.]]>
                             </comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>36</sort_order>
@@ -1369,6 +1391,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </cron_orders>
+                        <!-- OBSOLETO: coberto por pluggto_cron / runQueueCycle desde 2026-08-19. Campo mantido comentado pra referencia historica.
                         <cron_clearqueue translate="label">
                             <label>Cron: limpeza da fila (expressão cron)</label>
                             <comment>
@@ -1382,12 +1405,14 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </cron_clearqueue>
+                        /OBSOLETO -->
                         <perf_log translate="label">
                             <label>Log de performance (debug)</label>
                             <comment>
-                                <![CDATA[<b>O que faz:</b> grava os tempos de execução dos crons (playline, syncPriceStock, getTableData, etc.) em <i>var/log/pluggto_perf.log</i>.<br/>
-                                <b>Por que existe:</b> permite diagnosticar lentidão/gargalos de uma loja sem precisar do CLI.<br/>
-                                <b>Quando usar (qualquer cenário):</b> ligue <i>Sim</i> SÓ para investigar um problema e <b>desligue depois</b> (evita log crescendo à toa). O script <i>shell/pluggto_bench.php</i> já liga isso sozinho no processo dele.<br/>
+                                <![CDATA[<b>O que faz:</b> grava tempos de execução, ações de cache e prune, tudo do fluxo dos crons em <i>var/log/pluggto_perf.log</i>. Ajuda a diagnosticar lentidão sem CLI.<br/>
+                                <b>Recomendado:</b> <b>Não</b> (default) no dia a dia &mdash; o arquivo cresce rápido.<br/>
+                                <b>Ligue temporariamente (Sim) quando:</b> for investigar lentidão, loop de PUTs rejeitados, ou validar que uma mudança de config surtiu efeito.<br/>
+                                <b>Desligue depois</b> pra o log não encher o disco.<br/>
                                 <b>Default: Não.</b>]]>
                             </comment>
                             <frontend_type>select</frontend_type>
@@ -1400,10 +1425,11 @@
                         <skip_product_export translate="label">
                             <label>Não exportar produtos/estoque para a Plugg.To (loja só recebe)</label>
                             <comment>
-                                <![CDATA[<b>O que faz:</b> desliga os eventos que enviam PRODUTO/ESTOQUE da loja para a Plugg.To (save de produto, alteração de atributo em massa, mudança de estoque e exclusão de produto). <b>Pedidos NÃO são afetados</b> &mdash; continuam indo normalmente para a Plugg.To.<br/>
-                                <b>Por que existe:</b> numa loja inversa, ao importar um produto da Plugg.To a loja o salva, e o evento de save dispara um envio de volta &mdash; um PUT vazio que a Plugg.To responde "No changes found". São milhares de chamadas inúteis que entopem a fila.<br/>
-                                <b>Loja PUSH:</b> <i>Não</i> (OBRIGATÓRIO) &mdash; é justamente assim que ela envia os produtos para os marketplaces.<br/>
-                                <b>Loja INVERSA/PULL:</b> <i>Sim</i> &mdash; ela só recebe produtos; nunca empurra de volta.<br/>
+                                <![CDATA[<b>O que faz:</b> desliga o envio de produto/estoque da loja pra Plugg.To. Pedidos continuam indo normal.<br/>
+                                <b>Essa config define o CENÁRIO da loja:</b><br/>
+                                &bull; <b>Não</b> (default) &rarr; loja PUSH: o Magento é a fonte da verdade dos produtos e os empurra pros marketplaces via Plugg.To.<br/>
+                                &bull; <b>Sim</b> &rarr; loja INVERSA/PULL: a Plugg.To é quem manda os produtos pro Magento. A loja só recebe; nunca empurra de volta.<br/>
+                                <b>Como decidir:</b> se você configura preço/estoque/foto <b>no Magento</b> &rarr; deixe <b>Não</b>. Se configura tudo <b>na plataforma da Plugg.To ou no marketplace</b> e o Magento é só um espelho pra receber pedidos &rarr; deixe <b>Sim</b>.<br/>
                                 <b>Default: Não.</b>]]>
                             </comment>
                             <frontend_type>select</frontend_type>
@@ -1413,6 +1439,41 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </skip_product_export>
+                        <observer_skip_unchanged translate="label">
+                            <label>Não exportar produto quando save não mudou nada relevante</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> quando um produto é salvo no Magento, só exporta pra Plugg.To se algum destes 6 campos mudou: <i>price, special_price, name, description, status, visibility</i>. Se nada relevante mudou, não enfileira nada.<br/>
+                                <b>Estoque e pedidos NÃO são afetados</b> &mdash; têm caminhos separados que continuam funcionando normalmente.<br/>
+                                <b>Recomendado:</b> <b>Sim</b> (default) em qualquer cenário. Loja sem ERP externo: filtro não bloqueia nada (todo save já é "de verdade"). Loja com ERP (T5, etc.): filtro economiza muitos PUTs redundantes que a Plugg.To recusaria como "no changes found".<br/>
+                                <b>Só desligue (Não) se:</b> estiver debugando comportamento estranho do observer.<br/>
+                                <b>Default: Sim.</b>]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </observer_skip_unchanged>
+                        <skip_previously_rejected translate="label">
+                            <label>Não re-enfileirar PUTs que a Plugg.To já rejeitou (not_updated)</label>
+                            <comment>
+                                <![CDATA[<b>O que faz:</b> memoriza produtos cujo PUT a Plugg.To recusou como "no changes found" e:<br/>
+                                &bull; não re-enfileira PUT idêntico enquanto os valores locais não mudarem (evita loop);<br/>
+                                &bull; envia body reduzido (só campos que diferem do remoto) &mdash; reduz drasticamente as recusas silenciosas.<br/>
+                                <b>Auto-libera:</b> quando preço/estoque local muda de verdade, o cache é liberado automaticamente e o PUT novo vai. Sem intervenção manual.<br/>
+                                <b>Recomendado:</b> <b>Sim</b> (default) em qualquer cenário. Sem isso, produtos com preço placeholder ou valores rejeitados pela Plugg.To entram em loop eterno &mdash; o cron re-enfileira os mesmos 1.000+ SKUs a cada ciclo, entupindo a fila.<br/>
+                                <b>Só desligue (Não) se:</b> estiver debugando comportamento do cache.<br/>
+                                <b>Grid da fila:</b> linhas cacheadas aparecem na coluna "Rejeitado".<br/>
+                                <b>Default: Sim.</b>]]>
+                            </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </skip_previously_rejected>
                     </fields>
                 </mageshop>
                 <marketplace>

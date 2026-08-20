@@ -63,15 +63,15 @@ class Thirdlevel_Pluggto_Helper_Data extends Mage_Core_Helper_Abstract
             if (isset($logTextOrVariable)) {
                 if ($logTextOrVariable != null) {
                     if (empty($logTextOrVariable)) {
-                        Mage::log('Empty Variable: ', null, $logFile, $overrideModuleLogSettings);
+                        Mage::log('Empty Variable: ', Zend_Log::DEBUG, $logFile, $overrideModuleLogSettings);
                     } else {
-                        Mage::log($logTextOrVariable, null, $logFile, $overrideModuleLogSettings);
+                        Mage::log($logTextOrVariable, Zend_Log::DEBUG, $logFile, $overrideModuleLogSettings);
                     }
                 } else {
-                    Mage::log('Null Variable: ', null, $logFile);
+                    Mage::log('Null Variable: ', Zend_Log::DEBUG, $logFile);
                 }
             } else {
-                Mage::log('Non-set Variable: ', null, $logFile);
+                Mage::log('Non-set Variable: ', Zend_Log::DEBUG, $logFile);
             }
         }
     }

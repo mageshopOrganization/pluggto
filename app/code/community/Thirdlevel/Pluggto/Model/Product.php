@@ -4,6 +4,178 @@ class Thirdlevel_Pluggto_Model_Product extends Mage_Core_Model_Abstract
 {
     public $products;
     protected $productData = null;
+
+    /**
+     * [4.0.7 MageShop] Cache em memoria (por execucao do syncPriceStock) das
+     * ultimas rejeicoes silenciosas da Plugg.To.
+     * Chave: storeid (= entity_id do produto Magento). Escolha proposital:
+     * pluggtoid pode chegar vazio nas linhas de PUT criadas pelo Export
+     * (dependendo do caminho), enquanto storeid EST-A SEMPRE preenchido.
+     * Estrutura: [storeid => ['price'=>'1.79', 'special_price'=>'1.79', 'quantity'=>0, 'created'=>...]]
+     */
+    protected $__rejectedCache = null;
+
+    /**
+     * [4.0.7 MageShop] Carrega em memoria o body do ultimo PUT rejeitado
+     * (is_cached_reject=1) de cada storeid. Uma unica query bulk pra
+     * evitar N queries no loop dos 20k produtos.
+     *
+     * Feature-detection defensiva (multi-tenant SaaS): lojas que ainda nao
+     * rodaram a migration 4.0.6->4.0.7 nao tem a coluna. Nesse caso, retorna
+     * array vazio e o loop se comporta como versao anterior.
+     */
+    protected function _loadRejectedCache()
+    {
+        if ($this->__rejectedCache !== null) {
+            return $this->__rejectedCache;
+        }
+        $this->__rejectedCache = array();
+
+        if (!Mage::getStoreConfig('pluggto/mageshop/skip_previously_rejected')) {
+            return $this->__rejectedCache;
+        }
+
+        if (!Mage::getModel('pluggto/line')->hasCachedRejectColumn()) {
+            return $this->__rejectedCache;
+        }
+
+        try {
+            $resource = Mage::getSingleton('core/resource');
+            $conn     = $resource->getConnection('core_read');
+            $table    = $resource->getTableName('pluggto/line');
+
+            // ORDER BY id ASC: quando um storeid tem multiplas rejeicoes
+            // historicas (raro, mas possivel se release/reject alternam), a
+            // linha MAIS RECENTE (id maior) vence o foreach (sobrescreve).
+            $rows = $conn->fetchAll(
+                "SELECT storeid, body, created FROM {$table} WHERE is_cached_reject = 1 AND storeid IS NOT NULL AND storeid != '' ORDER BY id ASC"
+            );
+
+            foreach ($rows as $row) {
+                $body = json_decode($row['body'], true);
+                if (!is_array($body)) {
+                    continue;
+                }
+                $this->__rejectedCache[$row['storeid']] = array(
+                    'price'         => isset($body['price']) ? (string) $body['price'] : null,
+                    'special_price' => isset($body['special_price']) ? (string) $body['special_price'] : null,
+                    'quantity'      => isset($body['quantity']) ? (int) $body['quantity'] : null,
+                    'created'       => $row['created'],
+                );
+            }
+        } catch (Exception $e) {
+            Mage::helper('pluggto')->WriteLogForModule('Error', '_loadRejectedCache: ' . $e->getMessage());
+        }
+
+        Mage::helper('pluggto')->WriteLogForModule('PERF', 'sync.rejectedCache loaded: ' . count($this->__rejectedCache) . ' entries');
+        return $this->__rejectedCache;
+    }
+
+    /**
+     * [4.0.7 MageShop] Retorna true se o storeid (entity_id do produto) tem
+     * uma rejeicao em cache cujo body enviado bate com os valores atuais
+     * (preco/special/estoque). Compara por numberFormat (float 2 casas) pra
+     * evitar ruido. Ignora chaves ausentes no body rejeitado.
+     *
+     * $__missInfo (byref, opcional): quando retorna false, preenche com
+     * {reason, cache} pra diagnostico via log no chamador. reason=
+     * 'no_entry' | 'price' | 'special' | 'quantity_null' | 'quantity_diff'.
+     */
+    protected function _matchesRejectedCache($storeid, $localPrice, $localSpecial, $localQty, &$__missInfo = null)
+    {
+        $cache = $this->_loadRejectedCache();
+        if (!isset($cache[$storeid])) {
+            $__missInfo = array('reason' => 'no_entry', 'cache' => null);
+            return false;
+        }
+        $entry = $cache[$storeid];
+        $__cacheView = array(
+            'p' => $entry['price'],
+            's' => $entry['special_price'],
+            'q' => $entry['quantity'],
+        );
+
+        // [4.0.7 MageShop] Semantica pos-Opcao B (prune de campos que batem com $old):
+        //
+        // Se `entry['<campo>']` e null no cache, significa: o body do PUT rejeitado
+        // NAO carregava esse campo. Isso pode ser por 2 motivos:
+        //   (a) A Plugg.To nao tem o campo (produto sem special_price, por ex.).
+        //   (b) A Opcao B prunou o campo porque local == remoto no momento do envio.
+        //
+        // Nao da pra distinguir (a) de (b) so pelo cache. A interpretacao segura,
+        // pos-Opcao B, e: **tratar cache null como "ignorar esse campo"** (nao
+        // forcar mismatch). Rationale:
+        //   - Se local mudou de verdade, o proximo PUT sai com valor novo -> prune
+        //     nao remove (local != remoto) -> Plugg.To atualiza -> status=1 (nao
+        //     marca cache). Fluxo natural, nao depende do cache "detectar mudanca".
+        //   - Se local ainda bate com remoto, prune remove -> body vazio pra esse
+        //     campo -> Plugg.To 400 "no changes" -> cache re-marca vazio. Mas o
+        //     ciclo seguinte o cache diz match trivial -> SKIP. Loop cortado.
+        //
+        // ANTES desta mudanca (normalizacao antiga que tratava cache null como
+        // "assumidamente sem special no remoto"), o cache declarava mismatch
+        // quando local tinha valor E cache era null -> liberava e re-enfileirava.
+        // Com Opcao B prunando agressivamente, isso virou loop patologico observado
+        // em produção (7 SKUs teimosos, 1 rejeicao por ciclo do syncStockPrice).
+        //
+        // Comparacoes numericas via numberFormat (float 2 casas) - consistente
+        // com syncPriceStock, que usa == em comparacao similar.
+
+        // Price: mismatch so se AMBOS tem valor e sao diferentes.
+        if ($entry['price'] !== null && $localPrice !== null
+            && $this->numberFormat($entry['price']) != $this->numberFormat($localPrice)) {
+            $__missInfo = array('reason' => 'price', 'cache' => $__cacheView);
+            return false;
+        }
+
+        // Special: mismatch so se AMBOS tem valor e sao diferentes.
+        if ($entry['special_price'] !== null && $localSpecial !== null
+            && $this->numberFormat($entry['special_price']) != $this->numberFormat($localSpecial)) {
+            $__missInfo = array('reason' => 'special', 'cache' => $__cacheView);
+            return false;
+        }
+
+        // Quantity: mesma logica. Se cache tem q=0 e local e null (produto nao-simple),
+        // ignora (nao pode assumir nada). Se ambos tem valor e sao diferentes, mismatch.
+        if ($entry['quantity'] !== null && $localQty !== null
+            && (int) $entry['quantity'] != (int) $localQty) {
+            $__missInfo = array('reason' => 'quantity_diff', 'cache' => $__cacheView);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * [4.0.7 MageShop] Libera (is_cached_reject=0) todas as linhas cache desse
+     * storeid. Chamado quando o loop decide enfileirar um novo PUT (porque
+     * o valor local mudou vs. o rejeitado). Assim o clearQueue pode apagar as
+     * linhas antigas normalmente.
+     * Feature-detection: no-op silencioso se a coluna nao existe.
+     */
+    protected function _releaseRejectedCache($storeid)
+    {
+        if (empty($storeid)) {
+            return;
+        }
+        if (!Mage::getModel('pluggto/line')->hasCachedRejectColumn()) {
+            return;
+        }
+        try {
+            $resource = Mage::getSingleton('core/resource');
+            $write    = $resource->getConnection('core_write');
+            $table    = $resource->getTableName('pluggto/line');
+            $write->update(
+                $table,
+                array('is_cached_reject' => 0),
+                array('storeid = ?' => $storeid, 'is_cached_reject = ?' => 1)
+            );
+            unset($this->__rejectedCache[$storeid]);
+        } catch (Exception $e) {
+            Mage::helper('pluggto')->WriteLogForModule('Error', '_releaseRejectedCache: ' . $e->getMessage());
+        }
+    }
+
     protected $attributeSetId;
     protected $attributesIds;
     protected $simpleProduts;
@@ -261,6 +433,13 @@ class Thirdlevel_Pluggto_Model_Product extends Mage_Core_Model_Abstract
         // usam o disable_product para zerar o produto no marketplace.
         $skipDisabled = (bool) Mage::getStoreConfig('pluggto/mageshop/sync_skip_disabled');
 
+        // [4.0.7 MageShop] Pre-carrega cache de rejeicoes silenciosas (uma query
+        // bulk). Ver _loadRejectedCache. Se skip_previously_rejected=0 ou coluna
+        // is_cached_reject nao existe, retorna array vazio (no-op no loop).
+        $this->_loadRejectedCache();
+        $__skipRejected = (bool) Mage::getStoreConfig('pluggto/mageshop/skip_previously_rejected');
+        $__cachedSkipCount = 0; // [PERF] contador de pulos por cache-hit
+
         $__loopT = microtime(true); // [PERF] tempo de execucao (gated: mageshop/perf_log)
         $__dryTotal = 0; $__dryBy = array(); $__drySamples = array(); $__drySkippable = 0; // [DRY diag]
         $productDataArray = array();
@@ -349,6 +528,57 @@ class Thirdlevel_Pluggto_Model_Product extends Mage_Core_Model_Abstract
                             . ($__expFalse ? ' [exp=0]' : ' [exp=1]') . ' => ' . implode(' ', $__reasons);
                     }
                 } elseif ($configs['configuration']['base']) {
+                    // [4.0.7 MageShop] Se o ultimo PUT desse produto foi
+                    // silenciosamente rejeitado (not_updated) E os valores
+                    // atuais no Magento sao os MESMOS que ja foram rejeitados,
+                    // pula (evita loop infinito de PUTs que a Plugg.To ignora).
+                    // Se algo mudou, libera o cache e enfileira normalmente
+                    // (auto-libera - proximo clearQueue apaga a linha antiga).
+                    // Chave: entity_id do produto (= line.storeid). Nao usamos
+                    // pluggtoid porque nas linhas de PUT ele chega vazio.
+                    $__storeid = $product->getEntityId();
+                    // $stock so e valido no bloco 'simple' acima. Nao usar isset()
+                    // solto porque o valor da iteracao ANTERIOR persiste no escopo
+                    // do foreach - passaria qty errada pra _matchesRejectedCache
+                    // em produtos nao-simple.
+                    $__localQty = ($product->getTypeId() == 'simple' && isset($stock)) ? $stock : null;
+                    $__missInfo = null;
+                    if ($__skipRejected && $__storeid
+                        && $this->_matchesRejectedCache($__storeid, $price, $specialPrice, $__localQty, $__missInfo)
+                    ) {
+                        $__cachedSkipCount++;
+                        Mage::helper('pluggto')->WriteLogForModule(
+                            'PERF',
+                            'skip_rejected: sku=' . trim($product->getSku())
+                            . ' storeid=' . $__storeid
+                            . ' current={p:' . $price . ',s:' . $specialPrice . ',q:' . ($__localQty !== null ? $__localQty : '-') . '}'
+                        );
+                        continue;
+                    }
+                    // [4.0.7 DIAG] Log de miss do cache: so quando havia entry (reason!=no_entry).
+                    // reason=no_entry e normal (primeira rejeicao ou clearQueue apagou); nao inunda.
+                    // Os demais reasons indicam divergencia real entre body cacheado e valor local -
+                    // sao os candidatos ao loop patologico (release+re-enqueue+re-reject).
+                    if ($__skipRejected && $__storeid && is_array($__missInfo)
+                        && $__missInfo['reason'] !== 'no_entry'
+                    ) {
+                        $__c = $__missInfo['cache'];
+                        Mage::helper('pluggto')->WriteLogForModule(
+                            'PERF',
+                            'skip_rejected_MISS: sku=' . trim($product->getSku())
+                            . ' storeid=' . $__storeid
+                            . ' reason=' . $__missInfo['reason']
+                            . ' cache={p:' . ($__c['p'] !== null ? $__c['p'] : '-')
+                            . ',s:' . ($__c['s'] !== null ? $__c['s'] : '-')
+                            . ',q:' . ($__c['q'] !== null ? $__c['q'] : '-') . '}'
+                            . ' local={p:' . $price
+                            . ',s:' . $specialPrice
+                            . ',q:' . ($__localQty !== null ? $__localQty : '-') . '}'
+                        );
+                    }
+                    if ($__storeid) {
+                        $this->_releaseRejectedCache($__storeid);
+                    }
                     Mage::getSingleton('pluggto/export')->exportProductToQueue($product, false, 'PUT', true);
                 } else {
                     // [anti-flood] Nao re-enfileira GET de um produto que ja falhou
@@ -380,7 +610,8 @@ class Thirdlevel_Pluggto_Model_Product extends Mage_Core_Model_Abstract
 
         // [PERF] tempo de execucao (gated: mageshop/perf_log)
         Mage::helper('pluggto')->WriteLogForModule('PERF', 'sync.loop: '
-            . round(microtime(true) - $__loopT, 2) . 's');
+            . round(microtime(true) - $__loopT, 2) . 's'
+            . ' cachedSkips=' . $__cachedSkipCount);
 
         if ($dryRun) {
             // [DRY diag] resumo do que o syncPriceStock ENFILEIRARIA (sem enfileirar)
@@ -620,7 +851,7 @@ class Thirdlevel_Pluggto_Model_Product extends Mage_Core_Model_Abstract
 
     public function addAttributeOptions($attribute_code, array $optionsArray)
     {
-        $setup = new Mage_Sales_Model_Mysql4_Setup('core_setup');
+        $setup = new Mage_Sales_Model_Resource_Setup('core_setup');
         $tableOptions = $setup->getTable('eav_attribute_option');
         $tableOptionValues = $setup->getTable('eav_attribute_option_value');
         $attributeId = (int)$setup->getAttribute('catalog_product', $attribute_code, 'attribute_id');
@@ -1857,6 +2088,83 @@ class Thirdlevel_Pluggto_Model_Product extends Mage_Core_Model_Abstract
         }
     }
 
+    /**
+     * [4.0.7 MageShop] Opção B — remove do body os campos escalares cujo valor
+     * local bate exatamente com o valor remoto ($old, vindo do prefetch por SKU).
+     *
+     * Razão: sem isso, todo PUT carrega TODOS os campos permitidos pelas configs
+     * update_* — mesmo os que não mudaram — e a Plugg.To responde HTTP 400
+     * "Changes not found in the document" quando o body inteiro bate com o que
+     * ela já tem. Isso gerava loop patológico com syncStockPrice + tabledata stale
+     * (ver seção 7.5 e 7.6 de MELHORIAS_PLUGGTO.md).
+     *
+     * A doc oficial da Plugg.To confirma o comportamento: se body == remoto,
+     * rejeita como "not_updated". Mas não expõe endpoint para partial updates
+     * documentado — a única saída é o cliente prunar antes de enviar.
+     *
+     * Campos array (photos, categories, attributes, variations, dimension) NÃO
+     * são prunados aqui — a comparação é complexa (order, IDs, novos itens)
+     * e o risco de bug é alto. Ficam sempre incluídos quando as configs permitem.
+     *
+     * @param array &$data  body em construção (byref)
+     * @param array $old    estado remoto vindo do prefetch (getProductInPluggto)
+     * @param string $sku   pra auditoria no log
+     * @return int          quantidade de campos removidos
+     */
+    protected function _pruneUnchangedFields(array &$data, $old, $sku)
+    {
+        if (!$old || !is_array($old)) {
+            return 0;
+        }
+
+        // Campos escalares seguros pra comparar. Chave: nome no body / Valor: tipo.
+        $scalars = array(
+            'name'          => 'string',
+            'description'   => 'string',
+            'price'         => 'number',
+            'special_price' => 'number',
+            'quantity'      => 'int',
+            'link'          => 'string',
+            'brand'         => 'string',
+        );
+
+        $prunedFields = array();
+
+        foreach ($scalars as $key => $type) {
+            if (!array_key_exists($key, $data))     continue; // nao setado no body
+            if (!array_key_exists($key, $old))      continue; // sem valor remoto pra comparar
+            if ($old[$key] === null)                continue; // remoto explicitamente null: nao assume match
+
+            $localV = $data[$key];
+            $oldV   = $old[$key];
+
+            $matches = false;
+            if ($type === 'number') {
+                $matches = ($this->numberFormat($localV) == $this->numberFormat($oldV));
+            } elseif ($type === 'int') {
+                $matches = ((int) $localV === (int) $oldV);
+            } else { // string
+                $matches = (trim((string) $localV) === trim((string) $oldV));
+            }
+
+            if ($matches) {
+                unset($data[$key]);
+                $prunedFields[] = $key;
+            }
+        }
+
+        if (!empty($prunedFields)) {
+            Mage::helper('pluggto')->WriteLogForModule(
+                'PERF',
+                'formate.prune: sku=' . $sku
+                . ' pruned=[' . implode(',', $prunedFields) . ']'
+                . ' count=' . count($prunedFields)
+            );
+        }
+
+        return count($prunedFields);
+    }
+
     public function formateToPluggto($product, $old = null)
     {
         $this->weight = 0;
@@ -2258,6 +2566,16 @@ class Thirdlevel_Pluggto_Model_Product extends Mage_Core_Model_Abstract
 
         if ($Productsconfigs['update_attributes'] && (!isset($data['dimension']['width']) || empty($data['dimension']['width']) || $data['dimension']['width'] == 0)) {
             $data['dimension']['width'] = $this->width;
+        }
+
+        // [4.0.7 MageShop] Opção B — prune de campos escalares que ja batem com $old.
+        // Substitui a Opção A anterior (unset special_price quando == price), que
+        // agora é caso particular deste prune. Gated pela mesma flag do cache
+        // (skip_previously_rejected): as duas protecoes trabalham em par.
+        // Ver _pruneUnchangedFields() no topo da classe pra doc completa.
+        if ($old && Mage::getStoreConfig('pluggto/mageshop/skip_previously_rejected')) {
+            $__sku = isset($data['sku']) ? $data['sku'] : trim((string) $product->getSku());
+            $this->_pruneUnchangedFields($data, $old, $__sku);
         }
 
         return $data;

@@ -7,7 +7,7 @@ class Thirdlevel_Pluggto_Adminhtml_Pluggto_QueueController extends Mage_Adminhtm
         parent::_construct();
     }
 
-    protected function _isAllowed()
+    protected function _isAllowed(): bool
     {
         return true;
     }

@@ -193,14 +193,17 @@ class Thirdlevel_Pluggto_Model_Call
 
         // (Re)adiciona um item ao pool. $accessToken por referencia para que um
         // retry posterior a uma re-autenticacao utilize o token atualizado.
+        // [4.0.7] Aceita paths que ja tem query string (ex.: 'products?bysku=X'):
+        // usa '&' em vez de '?' pra append do access_token nesse caso.
         $add = function ($i, $attempt) use (&$inflight, &$accessToken, $mh, $items, $header, $base) {
             $ch = curl_init();
+            $sep = (strpos($items[$i]['path'], '?') === false) ? '?' : '&';
             curl_setopt_array($ch, array(
                 CURLOPT_SSLVERSION     => CURL_SSLVERSION_TLSv1_2,
                 CURLOPT_RETURNTRANSFER => 1,
                 CURLOPT_HTTPHEADER     => $header,
                 CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_URL            => $base . $items[$i]['path'] . '?access_token=' . $accessToken,
+                CURLOPT_URL            => $base . $items[$i]['path'] . $sep . 'access_token=' . $accessToken,
                 CURLOPT_CUSTOMREQUEST  => 'GET',
                 CURLOPT_CONNECTTIMEOUT => 10,
                 CURLOPT_TIMEOUT        => 20,
@@ -240,6 +243,132 @@ class Thirdlevel_Pluggto_Model_Call
 
                 if (($transient || $code == 401) && $meta['attempt'] < $maxretry) {
                     $add($i, $meta['attempt'] + 1); // re-tenta o mesmo item
+                } else {
+                    $results[$items[$i]['id']] = array(
+                        'Body'    => json_decode($body, true),
+                        'code'    => $code,
+                        'success' => !($body === false || $body === ''),
+                    );
+                    if ($next < $n) {
+                        $add($next++, 0);
+                    }
+                }
+            }
+        } while (count($inflight) > 0 || $next < $n);
+
+        curl_multi_close($mh);
+        return $results;
+    }
+
+    /**
+     * [4.0.7 MageShop] Executa varios PUT/POST/DELETE autenticados em paralelo
+     * (curl_multi), com concorrencia limitada, retry em http=0/100 e reauth em 401.
+     * Analogo ao doCallMultiGet, mas para escritas.
+     *
+     * O CHAMADOR e responsavel por garantir que operacoes de escrita concorrentes
+     * NAO afetem o mesmo recurso (mesmo pluggtoid/storeid) - a trava por chave e
+     * feita em _playlineParallel (Line.php) ANTES de montar $requestsById.
+     *
+     * @param array $requestsById mapa [id => ['method' => 'PUT|POST|DELETE',
+     *                                        'path'   => 'skus/xyz',
+     *                                        'body'   => 'json string' | null]]
+     * @param int   $concurrency  chamadas simultaneas (default 5)
+     * @param int   $maxretry     retries por item em falha transitoria (default 3)
+     * @return array  [id => ['Body' => mixed, 'code' => int, 'success' => bool]]
+     */
+    public function doCallMultiWrite(array $requestsById, $concurrency = 5, $maxretry = 3)
+    {
+        $results = array();
+        if (empty($requestsById)) {
+            return $results;
+        }
+
+        $accessToken = $this->Autenticate();
+        if (!$accessToken) {
+            foreach ($requestsById as $id => $_) {
+                $results[$id] = array('Body' => null, 'code' => 0, 'success' => false);
+            }
+            return $results;
+        }
+
+        $base   = 'https://api.plugg.to/';
+        $header = array('Content-Type:application/json', 'Accept:application/json');
+        $reauthed = false;
+
+        // Lista sequencial preservando o id de origem.
+        $items = array();
+        foreach ($requestsById as $id => $req) {
+            $method = isset($req['method']) ? strtoupper($req['method']) : 'PUT';
+            if (!in_array($method, array('PUT', 'POST', 'DELETE'), true)) {
+                $method = 'PUT';
+            }
+            $items[] = array(
+                'id'     => $id,
+                'method' => $method,
+                'path'   => isset($req['path']) ? $req['path'] : '',
+                'body'   => isset($req['body']) ? $req['body'] : null,
+            );
+        }
+        $n    = count($items);
+        $next = 0;
+        if ($concurrency < 1) {
+            $concurrency = 1;
+        }
+
+        $mh = curl_multi_init();
+        $inflight = array();
+
+        // (Re)adiciona um item ao pool. $accessToken por referencia para retry pos-reauth.
+        $add = function ($i, $attempt) use (&$inflight, &$accessToken, $mh, $items, $header, $base) {
+            $ch = curl_init();
+            $opts = array(
+                CURLOPT_SSLVERSION     => CURL_SSLVERSION_TLSv1_2,
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_HTTPHEADER     => $header,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_URL            => $base . $items[$i]['path'] . '?access_token=' . $accessToken,
+                CURLOPT_CUSTOMREQUEST  => $items[$i]['method'],
+                CURLOPT_CONNECTTIMEOUT => 10,
+                CURLOPT_TIMEOUT        => 20,
+            );
+            if ($items[$i]['body'] !== null && $items[$i]['body'] !== '') {
+                $opts[CURLOPT_POSTFIELDS] = $items[$i]['body'];
+            }
+            curl_setopt_array($ch, $opts);
+            curl_multi_add_handle($mh, $ch);
+            $inflight[spl_object_id($ch)] = array('ch' => $ch, 'i' => $i, 'attempt' => $attempt);
+        };
+
+        while ($next < $n && count($inflight) < $concurrency) {
+            $add($next++, 0);
+        }
+
+        do {
+            curl_multi_exec($mh, $running);
+            curl_multi_select($mh, 1.0);
+            while ($info = curl_multi_info_read($mh)) {
+                $ch   = $info['handle'];
+                $key  = spl_object_id($ch);
+                $meta = $inflight[$key];
+                $i    = $meta['i'];
+                $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $body = curl_multi_getcontent($ch);
+                curl_multi_remove_handle($mh, $ch);
+                curl_close($ch);
+                unset($inflight[$key]);
+
+                $transient = ($code == 0 || $code == 100 || $body === false || $body === '');
+
+                if ($code == 401 && !$reauthed) {
+                    $newToken = $this->Autenticate(true);
+                    if ($newToken) {
+                        $accessToken = $newToken;
+                        $reauthed = true;
+                    }
+                }
+
+                if (($transient || $code == 401) && $meta['attempt'] < $maxretry) {
+                    $add($i, $meta['attempt'] + 1);
                 } else {
                     $results[$items[$i]['id']] = array(
                         'Body'    => json_decode($body, true),

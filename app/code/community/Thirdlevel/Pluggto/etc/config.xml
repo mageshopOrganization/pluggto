@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Thirdlevel_Pluggto>
-            <version>4.0.6</version>
+            <version>4.0.7</version>
         </Thirdlevel_Pluggto>
     </modules>
     <global>
@@ -302,9 +302,10 @@
                 <send_disable_imagem>0</send_disable_imagem>
             </configs>
             <mageshop>
-                <parallel_fetch>0</parallel_fetch>
+                <parallel_fetch>5</parallel_fetch>
+                <parallel_writes>5</parallel_writes>
                 <sync_skip_disabled>0</sync_skip_disabled>
-                <sync_stock_cron>*/2 * * * *</sync_stock_cron>
+                <sync_stock_cron>*/10 * * * *</sync_stock_cron>
                 <cron_playline>*/1 * * * *</cron_playline>
                 <cron_queuecycle>*/1 * * * *</cron_queuecycle>
                 <cron_bulkexport>*/1 * * * *</cron_bulkexport>
@@ -312,6 +313,8 @@
                 <cron_clearqueue>0 1 * * *</cron_clearqueue>
                 <perf_log>0</perf_log>
                 <skip_product_export>0</skip_product_export>
+                <observer_skip_unchanged>1</observer_skip_unchanged>
+                <skip_previously_rejected>1</skip_previously_rejected>
             </mageshop>
         </pluggto>
     </default>
@@ -319,6 +322,10 @@
         <jobs>
             <!-- Todas as expressoes cron sao configuraveis em
                  Sistema > Config > Plugg.To > Melhorias MageShop (default = valor abaixo). -->
+            <!-- OBSOLETO: coberto por pluggto_cron / runQueueCycle desde 2026-08-19.
+                 runQueueCycle roda safeWorkerLikeProcess (runBulkExport + playline)
+                 sob lock unico + clearQueue no fim do ciclo. Os 3 jobs abaixo eram
+                 subconjunto e podiam concorrer com o pluggto_cron sem lock compartilhado.
             <pluggto_observer>
                 <schedule>
                     <config_path>pluggto/mageshop/cron_playline</config_path>
@@ -343,6 +350,8 @@
                     <model>pluggto/line::clearQueue</model>
                 </run>
             </clear_observer>
+            -->
+            <!-- /OBSOLETO -->
 
             <!-- NOVO: substitui pluggto_cron.php (orquestrador) -->
             <pluggto_cron>

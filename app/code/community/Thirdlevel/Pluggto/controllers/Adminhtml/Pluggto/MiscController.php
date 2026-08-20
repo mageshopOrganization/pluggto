@@ -36,7 +36,7 @@ class Thirdlevel_Pluggto_Adminhtml_Pluggto_MiscController extends Mage_Adminhtml
         parent::_construct();
     }
 
-    protected function _isAllowed()
+    protected function _isAllowed(): bool
     {
         return true;
     }

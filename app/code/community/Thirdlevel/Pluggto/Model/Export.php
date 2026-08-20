@@ -384,26 +384,46 @@ class Thirdlevel_Pluggto_Model_Export extends Mage_Core_Model_Abstract
         $modelOrder = Mage::getModel('sales/order');
         $modelOrderCollection = $modelOrder->getCollection()->addAttributeToFilter('plugg_id', array('neq' => ''))->addAttributeToFilter('updated_at', array('from' => $fromDate, 'to' => $dateEnd, 'date' => true))->addFieldToFilter('status', array('nin' => array($pending, $approved, $canceled)))->setOrder('entity_id', 'ASC');
 
+        // [4.0.7 MageShop] Coleta os entity_ids da colecao pra fazer UMA query
+        // bulk em pluggto_line ao inves de N. Antes: 1 SELECT por pedido no loop
+        // (custo ~50s em lojas com 200-500 pedidos ativos na janela de 24h).
+        // Agora: 1 SELECT total + lookup em array (custo desprezivel).
+        // Semantica identica: para cada pedido, achar o MAX(created) das linhas
+        // 'orders' com storeid igual ao entity_id do pedido.
+        $__orderIds = array();
+        foreach ($modelOrderCollection as $__o) {
+            $__orderIds[] = $__o->getEntityId();
+        }
+
+        $__lastCreatedByOrder = array();
+        if (!empty($__orderIds)) {
+            $__resource  = Mage::getSingleton('core/resource');
+            $__conn      = $__resource->getConnection('core_read');
+            $__lineTable = $__resource->getTableName('pluggto/line');
+            $__select    = $__conn->select()
+                ->from($__lineTable, array('storeid', 'max_created' => new Zend_Db_Expr('MAX(created)')))
+                ->where('what = ?', 'orders')
+                ->where('storeid IN (?)', $__orderIds)
+                ->group('storeid');
+            // fetchPairs retorna [storeid => max_created]
+            $__lastCreatedByOrder = $__conn->fetchPairs($__select);
+        }
+
         foreach ($modelOrderCollection as $thisOrder) {
             // [anti-flood] So re-envia se o pedido mudou DESDE o ultimo envio.
             // Sem isso, todo pedido alterado nas ultimas 24h era re-enviado a cada
             // ciclo (a cada 5 min), e a Plugg.To respondia "Changes not found in the
-            // order" (400) — gerando linhas inuteis sem parar. Aqui comparamos o
+            // order" (400) — gerando linhas inuteis sem parar. Comparamos o
             // updated_at do pedido com o created da ultima linha de fila dele:
             // se nao houve alteracao depois do ultimo envio, pula.
-            $lastLine = Mage::getModel('pluggto/line')->getCollection()
-                ->addFieldToFilter('what', 'orders')
-                ->addFieldToFilter('storeid', $thisOrder->getEntityId())
-                ->setOrder('created', 'DESC')
-                ->setPageSize(1)
-                ->getFirstItem();
-
-            if ($lastLine->getId()
-                && strtotime($thisOrder->getUpdatedAt()) < strtotime($lastLine->getCreated())) {
+            // [4.0.7] Lookup em array ao inves de query (ver bulk acima).
+            $__oid = $thisOrder->getEntityId();
+            if (isset($__lastCreatedByOrder[$__oid])
+                && strtotime($thisOrder->getUpdatedAt()) < strtotime($__lastCreatedByOrder[$__oid])) {
                 continue; // sem mudanca desde o ultimo envio -> nao re-enfileira
             }
 
-            $this->exportOrderToQueue($thisOrder->getEntityId());
+            $this->exportOrderToQueue($__oid);
         }
 
         return true;

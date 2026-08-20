@@ -98,6 +98,24 @@ class Thirdlevel_Pluggto_Block_Queue_Grid extends Mage_Adminhtml_Block_Widget_Gr
             'width' => '100px',
         ));
 
+        // [4.0.7 MageShop] Coluna de rejeicao em cache. So aparece se a loja
+        // ja rodou a migration 4.0.6->4.0.7 (feature-detection multi-tenant).
+        // Linhas com is_cached_reject=1 sao preservadas pelo clearQueue - elas
+        // sao a memoria de rejeicoes silenciosas usada pelo syncPriceStock.
+        if (Mage::getModel('pluggto/line')->hasCachedRejectColumn()) {
+            $this->addColumn('is_cached_reject', array(
+                'header'   => Mage::helper('pluggto')->__('Rejeitado (cache)'),
+                'width'    => '80px',
+                'type'     => 'options',
+                'index'    => 'is_cached_reject',
+                'options'  => array(
+                    0 => Mage::helper('pluggto')->__('Não'),
+                    1 => Mage::helper('pluggto')->__('SIM (cache)'),
+                ),
+                'frame_callback' => array($this, 'decorateCachedReject'),
+            ));
+        }
+
         $this->addColumn(
             'action',
             array(
@@ -152,6 +170,18 @@ class Thirdlevel_Pluggto_Block_Queue_Grid extends Mage_Adminhtml_Block_Widget_Gr
         return $this;
     }
 
+
+    /**
+     * [4.0.7 MageShop] Renderer visual pra coluna is_cached_reject.
+     * Destaca em amarelo quando a linha esta cacheada como rejeicao.
+     */
+    public function decorateCachedReject($value, $row, $column, $isExport)
+    {
+        if ((int) $row->getIsCachedReject() === 1) {
+            return '<span style="background:#fff3b0;color:#8a6d00;padding:2px 6px;border-radius:3px;font-weight:bold;">' . $value . '</span>';
+        }
+        return $value;
+    }
 
     public function getRowUrl($row)
     {
