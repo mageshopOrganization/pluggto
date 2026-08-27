@@ -55,9 +55,12 @@ class Thirdlevel_Pluggto_Model_Bulkexport extends Mage_Core_Model_Abstract
             $resource = Mage::getSingleton('core/resource');
             $writeConnection = $resource->getConnection('core_write');
             $tableName = $resource->getTableName('pluggto/bulkexport');
+            // A PK dessa tabela e `id` (declarada em Mysql4/Bulkexport::_init).
+            // Antes usava `entity_id`, o que travava o cron com
+            // SQLSTATE[42S22] em lojas onde a coluna nao existe.
             $writeConnection->delete(
                 $tableName,
-                ['entity_id IN (?)' => $bulkIdsToDelete]
+                ['id IN (?)' => $bulkIdsToDelete]
             );
         }
     }
